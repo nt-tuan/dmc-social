@@ -36,6 +36,15 @@ namespace DmcSocial.API
             return Ok(posts.Select(u => new PostResponse(u)).ToList());
         }
 
+        [HttpGet]
+        [Route("count")]
+        public async Task<ActionResult<int>> CountPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags)
+        {
+            var total = await _repos.CountPosts(tags.ToList());
+            return total;
+        }
+
+
         /// <summary>
         /// Search posts
         /// </summary>

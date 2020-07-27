@@ -9,6 +9,7 @@ namespace DmcSocial.Repositories
     {
         Task<Post> CreatePost(Post post);
         Task<List<Post>> GetPosts(List<string> tags, GetListParams<Post> param);
+        Task<int> CountPosts(List<string> tags);
         Task<List<Post>> SearchPosts(List<string> tagIds, GetListParams<Post> param);
         Task<Post> GetPostById(int id, bool load = true);
         Task UpdatePost(Post entity);
