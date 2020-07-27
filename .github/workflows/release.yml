@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@master
       # Build the Docker image
       - name: Build
-        run: docker build -t $DOCKER_REPOSITORY/$GITHUB_REPOSITORY/$IMAGE:${GITHUB_REF##*/} .
+        run: docker build -t $DOCKER_REPOSITORY/$GITHUB_REPOSITORY/$IMAGE:${GITHUB_REF##*/} ./dmc-social
       - name: Login docker repository
         run: docker login $DOCKER_REPOSITORY -u $GITHUB_ACTOR --password ${{secrets.GITHUB_TOKEN}}
       - name: Publish
