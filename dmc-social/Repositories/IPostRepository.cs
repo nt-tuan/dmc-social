@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using DmcSocial.Models;
+
+namespace DmcSocial.Repositories
+{
+    public interface IPostRepository
+    {
+        Task<Post> CreatePost(Post post);
+        Task<List<Post>> GetPosts(List<string> tags, GetListParams<Post> param);
+        Task<List<Post>> SearchPosts(List<string> tagIds, GetListParams<Post> param);
+        Task<Post> GetPostById(int id, bool load = true);
+        Task UpdatePost(Post entity);
+        Task DeletePost(Post entity);
+        Task AddTag(Post entity, string tag);
+        Task RemoveTag(Post entity, string tag);
+    }
+}

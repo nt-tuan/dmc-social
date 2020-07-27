@@ -1,0 +1,16 @@
+﻿Value;IsSystemTag;NormalizeValue
+system;TRUE;system
+slide;TRUE;slide
+annouce;TRUE;annouce
+feature;TRUE;feature
+cntt;FALSE;cntt_congnghethongtin_it
+văn phòng;FALSE;vanphong_vp
+chuỗi cung ứng;FALSE;chuoicungung_logistic
+chi nhánh;FALSE;chinhanh_cn
+CN An Giang;FALSE;angiang
+CN Đồng Tháp;FALSE;dongthap
+CN Cần Thơ;FALSE;cantho
+CN Miền Đông;FALSE;miendong
+CN HCM;FALSE;hochiminh_tp
+CN Đà Nẵng;FALSE;danang
+CN Vinh;FALSE;vinh
