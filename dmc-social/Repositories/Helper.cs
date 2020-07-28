@@ -35,6 +35,8 @@ namespace DmcSocial.Repositories
         }
         public static string NormalizeString(string str)
         {
+            if (string.IsNullOrEmpty(str))
+                return str;
             var normalized = str;
             normalized = normalized.ToLower();
             normalized = convertToUnSign3(normalized);

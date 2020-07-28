@@ -29,7 +29,7 @@ namespace DmcSocial.Repositories
             var normalizeValue = Helper.NormalizeString(search);
             if (!string.IsNullOrEmpty(search))
                 query = query.Where(u => search == "" || u.NormalizeValue.Contains(search));
-            var tags = await query.Take(100).ToListAsync();
+            var tags = await query.ToListAsync();
             return tags;
         }
     }
