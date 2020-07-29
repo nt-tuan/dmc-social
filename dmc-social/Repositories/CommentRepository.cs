@@ -18,7 +18,7 @@ namespace DmcSocial.Repositories
 
         public async Task<List<PostComment>> GetSubPostComments(int commentId, GetListParams<PostComment> paging)
         {
-            var query = _db.PostComments.Where(u => u.ParentPostCommentId == commentId && u.DateRemoved != null);
+            var query = _db.PostComments.Where(u => u.ParentPostCommentId == commentId && u.DateRemoved == null);
             query = Helper.ApplyPaging(query, paging);
             var posts = await query.ToListAsync();
             return posts;
@@ -26,14 +26,14 @@ namespace DmcSocial.Repositories
 
         public async Task<int> GetSubPostCommentsCount(int commentId)
         {
-            var query = _db.PostComments.Where(u => u.ParentPostCommentId == commentId && u.DateRemoved != null);
+            var query = _db.PostComments.Where(u => u.ParentPostCommentId == commentId && u.DateRemoved == null);
             var count = await query.CountAsync();
             return count;
         }
 
         public async Task<List<PostComment>> GetPostComments(int postId, GetListParams<PostComment> paging)
         {
-            var query = _db.PostComments.Where(u => u.PostId == postId && u.DateRemoved != null);
+            var query = _db.PostComments.Where(u => u.PostId == postId && u.DateRemoved == null);
             query = Helper.ApplyPaging(query, paging);
             var comments = await query.ToListAsync();
             return comments;
@@ -41,7 +41,7 @@ namespace DmcSocial.Repositories
 
         public async Task<int> GetPostCommentsCount(int postId)
         {
-            var query = _db.PostComments.Where(u => u.PostId == postId && u.DateRemoved != null);
+            var query = _db.PostComments.Where(u => u.PostId == postId && u.DateRemoved == null);
             var count = await query.CountAsync();
             return count;
         }
@@ -52,7 +52,6 @@ namespace DmcSocial.Repositories
             await _db.SaveChangesAsync();
             return comment;
         }
-
 
         public async Task<PostComment> GetPostCommentById(int id)
         {
