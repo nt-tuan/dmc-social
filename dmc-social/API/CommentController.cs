@@ -6,6 +6,7 @@ using DmcSocial.Repositories;
 using System.Collections.Generic;
 using DmcSocial.Models;
 using DmcSocial.API.Models;
+using System.Linq;
 
 namespace DmcSocial.API
 {
@@ -14,18 +15,20 @@ namespace DmcSocial.API
     public class CommentController : ControllerBase
     {
         ICommentRepository _repos;
-        public CommentController(ICommentRepository repos)
+        Authenticate _auth;
+        public CommentController(Authenticate auth, ICommentRepository repos)
         {
             _repos = repos;
+            _auth = auth;
         }
 
         [HttpGet]
         [Route("post/{postId}")]
-        public async Task<ActionResult<List<PostComment>>> GetPostComments(int postId, int pageIndex, int pageRows)
+        public async Task<ActionResult<List<CommentResponse>>> GetPostComments(int postId, int pageIndex, int pageRows)
         {
             var comments = await _repos.GetPostComments(postId,
             new GetListParams<PostComment> { page = pageIndex, pageRows = pageRows });
-            return comments;
+            return comments.Select(u => new CommentResponse(u)).ToList();
         }
 
         [HttpGet]
@@ -38,11 +41,11 @@ namespace DmcSocial.API
 
         [HttpGet]
         [Route("{commentId}/comments")]
-        public async Task<ActionResult<List<PostComment>>> GetSubPostComments(int commentId, int pageIndex, int pageRows)
+        public async Task<ActionResult<List<CommentResponse>>> GetSubPostComments(int commentId, int pageIndex, int pageRows)
         {
-            var comments = await _repos.GetPostComments(commentId,
+            var comments = await _repos.GetSubPostComments(commentId,
             new GetListParams<PostComment> { page = pageIndex, pageRows = pageRows });
-            return comments;
+            return comments.Select(u => new CommentResponse(u)).ToList();
         }
 
         [HttpGet]
@@ -54,16 +57,18 @@ namespace DmcSocial.API
         }
 
         [HttpPut]
-        public async Task<ActionResult<PostComment>> CreateComment(PostComment req)
+        public async Task<ActionResult<CommentResponse>> CreateComment(CreateComment req)
         {
             var comment = new PostComment
             {
-                Content = req.Content,
-                PostId = req.PostId,
-                ParentPostCommentId = req.ParentPostCommentId,
-                DateCreated = DateTime.Now
+                Content = req.content,
+                PostId = req.postId,
+                ParentPostCommentId = req.commentId,
+                DateCreated = DateTime.Now,
+                CreatedBy = _auth.GetUser()
             };
-            return await _repos.CreatePostComment(comment);
+            var entity = await _repos.CreatePostComment(comment);
+            return new CommentResponse(entity);
         }
 
         [HttpDelete("{id}")]

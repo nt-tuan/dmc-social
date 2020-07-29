@@ -16,9 +16,11 @@ namespace DmcSocial.API
     public class PostController : ControllerBase
     {
         IPostRepository _repos;
-        public PostController(IPostRepository repos)
+        Authenticate _auth;
+        public PostController(IPostRepository repos, Authenticate auth)
         {
             _repos = repos;
+            _auth = auth;
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace DmcSocial.API
         public async Task<ActionResult<PostResponse>> CreatePost(CreatePost req)
         {
             var post = req.ToEntity();
-            post.CreatedBy = getUser();
+            post.CreatedBy = _auth.GetUser();
             await _repos.CreatePost(post);
             return Ok(new PostResponse(post));
         }
@@ -114,7 +116,7 @@ namespace DmcSocial.API
             {
                 post.PostAccessUsers = req.accessUsers;
             }
-            post.LastModifiedBy = getUser();
+            post.LastModifiedBy = _auth.GetUser();
             await _repos.UpdatePost(post);
             return Ok(new PostResponse(post));
         }
@@ -168,11 +170,6 @@ namespace DmcSocial.API
                 return NotFound();
             await _repos.RemoveTag(post, tag);
             return Ok();
-        }
-
-        private string getUser()
-        {
-            return "tuannt";
         }
     }
 }

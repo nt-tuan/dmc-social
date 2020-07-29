@@ -12,66 +12,67 @@ using Microsoft.Extensions.Logging;
 namespace DmcSocial
 {
     public class Startup
-{
-    public Startup(IConfiguration configuration)
     {
-        Configuration = configuration;
-    }
-    const string _corsPolicy = "MyPolicy";
-    public static readonly ILoggerFactory factory
-        = LoggerFactory.Create(builder => { builder.AddConsole(); });
-    public IConfiguration Configuration { get; }
-
-    // This method gets called by the runtime. Use this method to add services to the container.
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddCors(o => o.AddPolicy(_corsPolicy, builder =>
+        public Startup(IConfiguration configuration)
         {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        }));
-        services.AddDbContext<AppDbContext>(options =>
-        {
-            options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
-            options.UseLoggerFactory(factory);
-        });
-        services.AddControllers();
-        services.AddScoped<IPostRepository, PostRepository>();
-        services.AddScoped<ICommentRepository, CommentRepository>();
-        services.AddScoped<ITagRepository, TagRepository>();
-        services.AddSwaggerGen();
-    }
-
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
+            Configuration = configuration;
         }
-        using (var scope = app.ApplicationServices.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetService<AppDbContext>();
-            db.Database.Migrate();
-            var seeder = new DataSeeder(db);
-            seeder.Seed();
-        }
-        // Enable middleware to serve generated Swagger as a JSON endpoint.
-        app.UseSwagger();
+        const string _corsPolicy = "MyPolicy";
+        public static readonly ILoggerFactory factory
+            = LoggerFactory.Create(builder => { builder.AddConsole(); });
+        public IConfiguration Configuration { get; }
 
-        // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-        // specifying the Swagger JSON endpoint.
-        app.UseSwaggerUI(c =>
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        });
-        app.UseCors(_corsPolicy);
-        app.UseRouting();
-        app.UseEndpoints(endpoints =>
+            services.AddCors(o => o.AddPolicy(_corsPolicy, builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseLoggerFactory(factory);
+            });
+            services.AddControllers();
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<Authenticate, Authenticate>();
+            services.AddSwaggerGen();
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            endpoints.MapControllers();
-        });
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetService<AppDbContext>();
+                db.Database.Migrate();
+                var seeder = new DataSeeder(db);
+                seeder.Seed();
+            }
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+            app.UseCors(_corsPolicy);
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
     }
-}
 }

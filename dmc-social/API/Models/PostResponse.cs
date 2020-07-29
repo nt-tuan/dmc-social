@@ -21,7 +21,6 @@ namespace DmcSocial.API.Models
         public int CommentCount { get; set; }
 
         //REFERENCES    
-        public ICollection<PostCommentResponse> Comments { get; set; }
         public int PostRestrictionType { get; set; }
         public string[] PostAccessUsers { get; set; }
         public string[] Tags { get; set; }
@@ -36,10 +35,6 @@ namespace DmcSocial.API.Models
             CreatedAt = entity.DateCreated;
             ViewCount = entity.ViewCount;
             CommentCount = entity.CommentCount;
-            if (Comments != null)
-            {
-                Comments = entity.Comments.Select(u => new PostCommentResponse(u)).ToList();
-            }
             PostRestrictionType = entity.PostRestrictionType;
             PostAccessUsers = entity.PostAccessUsers;
             if (entity.PostTags != null)

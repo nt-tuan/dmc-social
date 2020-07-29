@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace DmcSocial.API.Models
 {
-    public class GetPosts
+    public class PostsResponse
     {
         public int? pageIndex { get; set; }
         public int? pageRows { get; set; }
