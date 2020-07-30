@@ -15,7 +15,6 @@ namespace DmcSocial.API.Models
         public DateTime createdAt { get; set; }
         public string createdBy { get; set; }
         public DateTime? lastModifiedAt { get; set; }
-
         public CommentResponse(PostComment entity)
         {
             id = entity.Id;

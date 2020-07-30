@@ -55,7 +55,7 @@ namespace DmcSocial.API
         /// <returns></returns>
         [HttpGet]
         [Route("search")]
-        public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags)
+        public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags, [FromQuery] string[] keywords)
         {
             var paging = new GetListParams<Post>(pageIndex, pageRows);
             var posts = await _repos.SearchPosts(tags.ToList(), paging);

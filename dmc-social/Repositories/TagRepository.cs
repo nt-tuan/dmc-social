@@ -28,7 +28,7 @@ namespace DmcSocial.Repositories
             .Where(u => u.DateRemoved == null);
             var normalizeValue = Helper.NormalizeString(search);
             if (!string.IsNullOrEmpty(search))
-                query = query.Where(u => search == "" || u.NormalizeValue.Contains(search));
+                query = query.Where(u => search == "" || u.NormalizeValue.Contains(normalizeValue));
             var tags = await query.ToListAsync();
             return tags;
         }
