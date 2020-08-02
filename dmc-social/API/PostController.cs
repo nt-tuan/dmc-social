@@ -76,6 +76,7 @@ namespace DmcSocial.API
             {
                 return NotFound("not-found");
             }
+            await _repos.MarkPostViewed(post);
             return Ok(new PostResponse(post));
         }
 
@@ -90,7 +91,14 @@ namespace DmcSocial.API
         {
             var post = req.ToEntity();
             post.CreatedBy = _auth.GetUser();
+            var postTags = post.PostTags;
+            post.PostTags = null;
             await _repos.CreatePost(post);
+
+            foreach (var postTag in postTags)
+            {
+                await _repos.AddTag(post, postTag.TagId);
+            }
             return Ok(new PostResponse(post));
         }
 
@@ -101,23 +109,22 @@ namespace DmcSocial.API
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost("{id}")]
-        public async Task<ActionResult<PostResponse>> UpdatePost(int id, UpdatePost req)
+        public async Task<ActionResult<PostResponse>> UpdatePostContent(int id, UpdatePostContent req)
         {
-            var post = await _repos.GetPostById(id, false);
-            if (post == null)
-            {
-                return NotFound();
-            }
-            post.Subject = req.subject;
-            post.Content = req.content;
-            post.CanComment = req.canComment;
-            post.PostRestrictionType = req.postRestrictionType;
-            if (req.accessUsers != null)
-            {
-                post.PostAccessUsers = req.accessUsers;
-            }
-            post.LastModifiedBy = _auth.GetUser();
-            await _repos.UpdatePost(post);
+            var post = await _repos.UpdatePostContent(id, req.subject, req.subject, _auth.GetUser());
+            return Ok(new PostResponse(post));
+        }
+
+        /// <summary>
+        /// Update a post config
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost("{id}")]
+        public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostContent req)
+        {
+            var post = await _repos.UpdatePostContent(id, req.subject, req.subject, _auth.GetUser());
             return Ok(new PostResponse(post));
         }
 

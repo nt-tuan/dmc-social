@@ -35,8 +35,8 @@ namespace DmcSocial.API.Models
             CreatedAt = entity.DateCreated;
             ViewCount = entity.ViewCount;
             CommentCount = entity.CommentCount;
-            PostRestrictionType = entity.PostRestrictionType;
-            PostAccessUsers = entity.PostAccessUsers;
+            PostRestrictionType = entity.Config.PostRestrictionType;
+            PostAccessUsers = entity.Config.PostAccessUsers;
             if (entity.PostTags != null)
             {
                 Tags = entity.PostTags.Select(u => u.TagId).ToArray();

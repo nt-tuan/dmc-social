@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DmcSocial.Models
 {
     public class Post : BaseEntity
     {
-        public enum PostRestriction { NONE, ALLOW_USERS }
         public string Subject { get; set; }
         public string Content { get; set; }
         public bool CanComment { get; set; }
-
+        public PostConfig Config { get; set; }
         //META DATA
         public DateTime LastModifiedDate { get; set; }
         public int ViewCount { get; set; }
@@ -17,8 +17,24 @@ namespace DmcSocial.Models
 
         //REFERENCES    
         public ICollection<PostComment> Comments { get; set; }
+
+        public ICollection<PostTag> PostTags { get; set; }
+    }
+
+    [Owned]
+    public class PostConfig
+    {
+        public enum PostRestriction { NONE, ALLOW_USERS }
         public int PostRestrictionType { get; set; }
         public string[] PostAccessUsers { get; set; }
-        public ICollection<PostTag> PostTags { get; set; }
+        public PostRestriction GetPostRestriction()
+        {
+            return (PostRestriction)PostRestrictionType;
+        }
+
+        public void SetPostRestriction(PostRestriction restriction)
+        {
+            PostRestrictionType = (int)restriction;
+        }
     }
 }

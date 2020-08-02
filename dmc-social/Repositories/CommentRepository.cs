@@ -50,6 +50,12 @@ namespace DmcSocial.Repositories
         {
             await _db.PostComments.AddAsync(comment);
             await _db.SaveChangesAsync();
+            await _db.Entry(comment).Reference(u => u.ParentPostComment).LoadAsync();
+            await _db.Entry(comment).Reference(u => u.Post).LoadAsync();
+
+            comment.ParentPostComment.CommentCount++;
+            comment.Post.CommentCount++;
+
             return comment;
         }
 
