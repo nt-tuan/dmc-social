@@ -3,15 +3,17 @@ using System;
 using DmcSocial.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DmcSocial.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200803041043_remove partial of posts")]
+    partial class removepartialofposts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,9 +30,6 @@ namespace DmcSocial.Migrations
 
                     b.Property<bool>("CanComment")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("CommentCount")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Content")
                         .HasColumnType("text");
@@ -53,20 +52,11 @@ namespace DmcSocial.Migrations
                     b.Property<DateTime?>("LastModifiedTime")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string[]>("PostAccessUsers")
-                        .HasColumnType("text[]");
-
-                    b.Property<int>("PostRestrictionType")
-                        .HasColumnType("integer");
-
                     b.Property<string>("RemovedBy")
                         .HasColumnType("text");
 
                     b.Property<string>("Subject")
                         .HasColumnType("text");
-
-                    b.Property<int>("ViewCount")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -190,6 +180,57 @@ namespace DmcSocial.Migrations
                     b.HasKey("Value");
 
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("DmcSocial.Models.Post", b =>
+                {
+                    b.OwnsOne("DmcSocial.Models.PostConfig", "Config", b1 =>
+                        {
+                            b1.Property<int>("PostId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("integer");
+
+                            b1.Property<string[]>("PostAccessUsers")
+                                .HasColumnType("text[]");
+
+                            b1.Property<int>("PostRestrictionType")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("PostId");
+
+                            b1.ToTable("Posts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PostId");
+                        });
+
+                    b.OwnsOne("DmcSocial.Models.PostMetric", "Metric", b1 =>
+                        {
+                            b1.Property<int>("PostId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                            b1.Property<int>("CommentCount")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Id")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("ViewCount")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("PostId");
+
+                            b1.ToTable("Posts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PostId");
+                        });
                 });
 
             modelBuilder.Entity("DmcSocial.Models.PostComment", b =>

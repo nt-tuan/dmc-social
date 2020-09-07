@@ -26,6 +26,7 @@ namespace DmcSocial
                     TagId = tag
                 }).ToList();
             }
+
             post.PostRestrictionType = postRestrictionType;
             if (accessUsers != null)
             {

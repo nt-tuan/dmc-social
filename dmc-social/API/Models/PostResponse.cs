@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DmcSocial.Models;
 
 namespace DmcSocial.API.Models
 {
@@ -16,11 +17,11 @@ namespace DmcSocial.API.Models
         public DateTime LastModifiedAt { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
-
         public int ViewCount { get; set; }
         public int CommentCount { get; set; }
 
-        //REFERENCES    
+        //REFERENCES
+        // public PostConfig Config { get; set; }
         public int PostRestrictionType { get; set; }
         public string[] PostAccessUsers { get; set; }
         public string[] Tags { get; set; }
@@ -37,6 +38,8 @@ namespace DmcSocial.API.Models
             CommentCount = entity.CommentCount;
             PostRestrictionType = entity.PostRestrictionType;
             PostAccessUsers = entity.PostAccessUsers;
+            // PostRestrictionType = entity.Config.PostRestrictionType;
+            // PostAccessUsers = entity.Config.PostAccessUsers;
             if (entity.PostTags != null)
             {
                 Tags = entity.PostTags.Select(u => u.TagId).ToArray();

@@ -3,15 +3,17 @@ using System;
 using DmcSocial.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DmcSocial.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200802163532_add constraint subcomment_post")]
+    partial class addconstraintsubcomment_post
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,12 +54,6 @@ namespace DmcSocial.Migrations
 
                     b.Property<DateTime?>("LastModifiedTime")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string[]>("PostAccessUsers")
-                        .HasColumnType("text[]");
-
-                    b.Property<int>("PostRestrictionType")
-                        .HasColumnType("integer");
 
                     b.Property<string>("RemovedBy")
                         .HasColumnType("text");
@@ -190,6 +186,30 @@ namespace DmcSocial.Migrations
                     b.HasKey("Value");
 
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("DmcSocial.Models.Post", b =>
+                {
+                    b.OwnsOne("DmcSocial.Models.PostConfig", "Config", b1 =>
+                        {
+                            b1.Property<int>("PostId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                            b1.Property<string[]>("PostAccessUsers")
+                                .HasColumnType("text[]");
+
+                            b1.Property<int>("PostRestrictionType")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("PostId");
+
+                            b1.ToTable("Posts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PostId");
+                        });
                 });
 
             modelBuilder.Entity("DmcSocial.Models.PostComment", b =>

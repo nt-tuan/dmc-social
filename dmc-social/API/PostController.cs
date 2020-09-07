@@ -30,7 +30,6 @@ namespace DmcSocial.API
         /// <param name="pageRows"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("")]
         public async Task<ActionResult<List<PostResponse>>> GetPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags)
         {
             var paging = new GetListParams<Post>(pageIndex, pageRows);
@@ -44,6 +43,15 @@ namespace DmcSocial.API
         {
             var total = await _repos.CountPosts(tags.ToList());
             return total;
+        }
+
+        [HttpGet]
+        [Route("metric/{id}")]
+        public async Task<ActionResult<PostMetric>> GetMetricById(int id)
+        {
+            var metric = await _repos.GetPostMetricById(id);
+            if (metric == null) return NotFound();
+            return metric;
         }
 
 
@@ -76,6 +84,7 @@ namespace DmcSocial.API
             {
                 return NotFound("not-found");
             }
+            await _repos.MarkPostViewed(post);
             return Ok(new PostResponse(post));
         }
 
@@ -89,8 +98,12 @@ namespace DmcSocial.API
         public async Task<ActionResult<PostResponse>> CreatePost(CreatePost req)
         {
             var post = req.ToEntity();
-            post.CreatedBy = _auth.GetUser();
-            await _repos.CreatePost(post);
+            var postTags = post.PostTags;
+            await _repos.CreatePost(post, _auth.GetUser());
+            foreach (var postTag in postTags)
+            {
+                await _repos.AddTag(post, postTag.TagId);
+            }
             return Ok(new PostResponse(post));
         }
 
@@ -101,23 +114,22 @@ namespace DmcSocial.API
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost("{id}")]
-        public async Task<ActionResult<PostResponse>> UpdatePost(int id, UpdatePost req)
+        public async Task<ActionResult<PostResponse>> UpdatePostContent(int id, UpdatePostContent req)
         {
-            var post = await _repos.GetPostById(id, false);
-            if (post == null)
-            {
-                return NotFound();
-            }
-            post.Subject = req.subject;
-            post.Content = req.content;
-            post.CanComment = req.canComment;
-            post.PostRestrictionType = req.postRestrictionType;
-            if (req.accessUsers != null)
-            {
-                post.PostAccessUsers = req.accessUsers;
-            }
-            post.LastModifiedBy = _auth.GetUser();
-            await _repos.UpdatePost(post);
+            var post = await _repos.UpdatePostContent(id, req.subject, req.subject, _auth.GetUser());
+            return Ok(new PostResponse(post));
+        }
+
+        /// <summary>
+        /// Update a post config
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost("{id}")]
+        public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostContent req)
+        {
+            var post = await _repos.UpdatePostContent(id, req.subject, req.subject, _auth.GetUser());
             return Ok(new PostResponse(post));
         }
 
@@ -129,12 +141,7 @@ namespace DmcSocial.API
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePost(int id)
         {
-            var post = await _repos.GetPostById(id);
-            if (post == null)
-            {
-                return NotFound();
-            }
-            await _repos.DeletePost(post);
+            await _repos.DeletePost(id, _auth.GetUser());
             return Ok();
         }
 

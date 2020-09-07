@@ -10,8 +10,8 @@ namespace test.Repositories
         [Fact]
         public void New()
         {
-            var tag = new Tag("Công nghệ thông tin");
-            Assert.Equal("congnghethongtin", tag.NormalizeValue);
+            var tag = new Tag("Chuỗi");
+            Assert.Equal("chuoi", tag.NormalizeValue);
         }
     }
 }
