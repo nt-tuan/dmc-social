@@ -14,7 +14,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      INIT_TAGS_FILE: /data/tags.csv
+      # INIT_TAGS_FILE: /data/tags.csv
       ConnectionStrings__DefaultConnection: "Host=db;Database=dmcsocial;Username=dmcsocial;Password=hala29an3"
     volumes:
       - ./Data:/data
