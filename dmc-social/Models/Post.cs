@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace DmcSocial.Models
@@ -9,32 +10,71 @@ namespace DmcSocial.Models
         public string Subject { get; set; }
         public string Content { get; set; }
         public bool CanComment { get; set; }
-        public PostConfig Config { get; set; }
+        #region config
+        // [NotMapped]
+        // public PostConfig Config
+        // {
+        //     get
+        //     {
+        //         return new PostConfig(this);
+        //     }
+        // }
+
+        public int PostRestrictionType { get; set; }
+        public string[] PostAccessUsers { get; set; }
+        #endregion
+
         //META DATA
         public DateTime LastModifiedDate { get; set; }
+
+        #region metric
+        // [NotMapped]
+        // public PostMetric Metric
+        // {
+        //     get
+        //     {
+        //         return new PostMetric(this);
+        //     }
+        // }
         public int ViewCount { get; set; }
         public int CommentCount { get; set; }
-
+        #endregion
         //REFERENCES    
         public ICollection<PostComment> Comments { get; set; }
 
         public ICollection<PostTag> PostTags { get; set; }
     }
 
-    [Owned]
-    public class PostConfig
+    public class PostMetric
     {
-        public enum PostRestriction { NONE, ALLOW_USERS }
-        public int PostRestrictionType { get; set; }
-        public string[] PostAccessUsers { get; set; }
-        public PostRestriction GetPostRestriction()
+        public int ViewCount { get; set; }
+        public int CommentCount { get; set; }
+        public PostMetric(Post post)
         {
-            return (PostRestriction)PostRestrictionType;
+            ViewCount = post.ViewCount;
+            CommentCount = post.CommentCount;
         }
 
-        public void SetPostRestriction(PostRestriction restriction)
-        {
-            PostRestrictionType = (int)restriction;
-        }
     }
+
+    // public class PostConfig
+    // {
+    //     public enum PostRestriction { NONE, ALLOW_USERS }
+    //     public int PostRestrictionType { get; set; }
+    //     public string[] PostAccessUsers { get; set; }
+    //     public PostConfig(Post post)
+    //     {
+    //         PostRestrictionType = post.PostRestrictionType;
+    //         PostAccessUsers = post.PostAccessUsers;
+    //     }
+    //     public PostRestriction GetPostRestriction()
+    //     {
+    //         return (PostRestriction)PostRestrictionType;
+    //     }
+
+    //     public void SetPostRestriction(PostRestriction restriction)
+    //     {
+    //         PostRestrictionType = (int)restriction;
+    //     }
+    // }
 }

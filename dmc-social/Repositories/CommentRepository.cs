@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DmcSocial.Repositories
 {
-
     public class CommentRepository : ICommentRepository
     {
         private readonly AppDbContext _db;
@@ -48,14 +47,16 @@ namespace DmcSocial.Repositories
 
         public async Task<PostComment> CreatePostComment(PostComment comment)
         {
-            await _db.PostComments.AddAsync(comment);
+            _db.PostComments.Add(comment);
             await _db.SaveChangesAsync();
             await _db.Entry(comment).Reference(u => u.ParentPostComment).LoadAsync();
-            await _db.Entry(comment).Reference(u => u.Post).LoadAsync();
+            if (comment.ParentPostComment != null)
+                comment.ParentPostComment.CommentCount++;
 
-            comment.ParentPostComment.CommentCount++;
-            comment.Post.CommentCount++;
-
+            var post = await _db.Posts.FindAsync(comment.PostId);
+            post.CommentCount++;
+            _db.Posts.Update(post);
+            await _db.SaveChangesAsync();
             return comment;
         }
 

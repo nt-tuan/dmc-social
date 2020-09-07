@@ -30,7 +30,6 @@ namespace DmcSocial.API
         /// <param name="pageRows"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("")]
         public async Task<ActionResult<List<PostResponse>>> GetPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags)
         {
             var paging = new GetListParams<Post>(pageIndex, pageRows);
@@ -44,6 +43,15 @@ namespace DmcSocial.API
         {
             var total = await _repos.CountPosts(tags.ToList());
             return total;
+        }
+
+        [HttpGet]
+        [Route("metric/{id}")]
+        public async Task<ActionResult<PostMetric>> GetMetricById(int id)
+        {
+            var metric = await _repos.GetPostMetricById(id);
+            if (metric == null) return NotFound();
+            return metric;
         }
 
 
@@ -90,11 +98,8 @@ namespace DmcSocial.API
         public async Task<ActionResult<PostResponse>> CreatePost(CreatePost req)
         {
             var post = req.ToEntity();
-            post.CreatedBy = _auth.GetUser();
             var postTags = post.PostTags;
-            post.PostTags = null;
-            await _repos.CreatePost(post);
-
+            await _repos.CreatePost(post, _auth.GetUser());
             foreach (var postTag in postTags)
             {
                 await _repos.AddTag(post, postTag.TagId);
@@ -136,12 +141,7 @@ namespace DmcSocial.API
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePost(int id)
         {
-            var post = await _repos.GetPostById(id);
-            if (post == null)
-            {
-                return NotFound();
-            }
-            await _repos.DeletePost(post);
+            await _repos.DeletePost(id, _auth.GetUser());
             return Ok();
         }
 

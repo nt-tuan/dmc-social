@@ -21,11 +21,18 @@ namespace DmcSocial.Repositories
 
         private IQueryable<Post> getPostQuery()
         {
-            return _db.Posts.Include(u => u.PostTags).AsQueryable();
+            return _db.Posts
+            .Include(u => u.PostTags).Where(post => post.DateRemoved == null).AsQueryable();
         }
 
-        public async Task<Post> CreatePost(Post post)
+        public async Task<Post> CreatePost(Post post, string actor)
         {
+            var now = DateTime.Now;
+            post.CreatedBy = actor;
+            post.LastModifiedBy = actor;
+            post.DateCreated = now;
+            post.LastModifiedTime = now;
+            post.PostTags = null;
             _db.Add(post);
             await _db.SaveChangesAsync();
             return post;
@@ -40,6 +47,12 @@ namespace DmcSocial.Repositories
             }
             var post = await query.Where(post => post.Id == id && post.DateRemoved == null).FirstOrDefaultAsync();
             return post;
+        }
+
+        public async Task<PostMetric> GetPostMetricById(int id)
+        {
+            var post = await _db.Posts.FindAsync(id);
+            return new PostMetric(post);
         }
 
         private IQueryable<Post> getPostsByTagsQuery(List<string> tags)
@@ -93,11 +106,20 @@ namespace DmcSocial.Repositories
             return entity;
         }
 
-        public async Task DeletePost(Post entity)
+        public async Task DeletePost(int id, string actor)
         {
+            var entity = await _db.Posts
+            .Include(u => u.PostTags)
+            .ThenInclude(pt => pt.Tag)
+            .Where(post => post.Id == id && post.DateRemoved == null).FirstOrDefaultAsync();
             if (entity == null || entity.DateRemoved != null)
                 throw PostException.PostNotFound;
-            _db.Posts.Remove(entity);
+            entity.DateRemoved = DateTime.Now;
+            foreach (var postTag in entity.PostTags)
+            {
+                postTag.Tag.PostCount--;
+            }
+            _db.Update(entity);
             await _db.SaveChangesAsync();
         }
 
@@ -105,6 +127,19 @@ namespace DmcSocial.Repositories
         {
             var entity = await _db.Tags.FindAsync(tag);
             return entity;
+        }
+        private void setTagModifiedTime(Post post, Tag tag)
+        {
+            if (post.LastModifiedTime == null)
+                return;
+            if (tag.LastModifiedTime == null)
+            {
+                tag.LastModifiedTime = post.LastModifiedTime;
+                return;
+            }
+            if (tag.LastModifiedTime > post.LastModifiedTime)
+                return;
+            tag.LastModifiedTime = post.LastModifiedTime;
         }
         public async Task AddTag(Post post, string tag)
         {
@@ -115,6 +150,7 @@ namespace DmcSocial.Repositories
             var entity = new PostTag { PostId = post.Id, TagId = tag };
             _db.PostTags.Add(entity);
             tagEntity.PostCount++;
+            setTagModifiedTime(post, tagEntity);
             _db.Tags.Update(tagEntity);
             await _db.SaveChangesAsync();
         }

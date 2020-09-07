@@ -26,12 +26,11 @@ namespace DmcSocial
                     TagId = tag
                 }).ToList();
             }
-            post.Config = new Models.PostConfig();
 
-            post.Config.PostRestrictionType = postRestrictionType;
+            post.PostRestrictionType = postRestrictionType;
             if (accessUsers != null)
             {
-                post.Config.PostAccessUsers = accessUsers;
+                post.PostAccessUsers = accessUsers;
             }
             return post;
         }
