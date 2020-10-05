@@ -115,7 +115,7 @@ namespace DmcSocial.API
     [HttpPut("{id}")]
     public async Task<ActionResult<PostResponse>> UpdatePostContent(int id, UpdatePostContent req)
     {
-      var post = await _repos.UpdatePostContent(id, req.subject, req.subject, _auth.GetUser());
+      var post = await _repos.UpdatePostContent(id, req.subject, req.content, _auth.GetUser());
       return Ok(new PostResponse(post));
     }
 
