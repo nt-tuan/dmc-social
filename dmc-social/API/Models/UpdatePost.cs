@@ -1,28 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace DmcSocial
 {
   public class UpdatePostContent
   {
-    [JsonPropertyName("content")]
+    [MinLength(32)]
+    [MaxLength(4048)]
     public string Content { get; set; }
-    [JsonPropertyName("title")]
+    [MinLength(8)]
+    [MaxLength(255)]
     public string Title { get; set; }
-    [JsonPropertyName("subtitle")]
+
     public string Subtitle { get; set; }
-    [JsonPropertyName("coverImageURL")]
+
     public string CoverImageURL { get; set; }
   }
 
   public class UpdatePostConfig
   {
-    [JsonPropertyName("canComment")]
+
     public bool CanComment { get; set; }
-    [JsonPropertyName("postRestrictionType")]
+
     public int PostRestrictionType { get; set; }
-    [JsonPropertyName("accessUsers")]
+
     public string[] AccessUsers { get; set; }
   }
 }
