@@ -12,7 +12,6 @@ namespace DmcSocial.Repositories
     public static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, GetListParams<T> pagingParam)
     {
       var chain = query;
-      chain = chain.Skip(pagingParam.Offset).Take(pagingParam.Limit);
       if (pagingParam.OrderBy != null)
       {
         if (pagingParam.OrderDirection == GetListParams<T>.OrderDirections.ASC)
@@ -24,6 +23,7 @@ namespace DmcSocial.Repositories
           chain = chain.OrderByDescending(pagingParam.OrderBy);
         }
       }
+      chain = chain.Skip(pagingParam.Offset).Take(pagingParam.Limit);
       return chain;
     }
 
