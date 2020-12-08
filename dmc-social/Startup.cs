@@ -56,7 +56,7 @@ namespace DmcSocial
       {
         var db = scope.ServiceProvider.GetService<AppDbContext>();
         db.Database.Migrate();
-        var seeder = new DataSeeder(db, factory);
+        var seeder = new DataSeeder(db);
         seeder.Seed();
       }
       // Enable middleware to serve generated Swagger as a JSON endpoint.
