@@ -180,7 +180,7 @@ namespace DmcSocial.Repositories
         PostId = u.Key,
         Count = u.Count()
       })
-      .Skip(param.GetSkipNumber())
+      .Skip(param.Offset)
       .Take(param.Limit)
       .OrderByDescending(u => u.Count)
       .ToListAsync();

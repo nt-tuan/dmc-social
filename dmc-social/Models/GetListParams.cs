@@ -29,11 +29,6 @@ namespace DmcSocial.Models
         throw new Exception("limit-too-much");
     }
 
-    public int GetSkipNumber()
-    {
-      return Offset;
-    }
-
     public void SetGetAllItems()
     {
       Offset = 0;
