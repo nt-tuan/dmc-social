@@ -1,74 +1,83 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace DmcSocial.Models
 {
   public class GetListParams<T>
   {
-    public enum OrderDir { ASC = 0, DESC = 1 }
-    public int offset { get; set; } = 0;
-    public int limit { get; set; } = 30;
-    public Expression<Func<T, object>> orderBy { get; set; } = null;
-    public OrderDir orderDir { get; set; } = OrderDir.ASC;
-    public DateTime at { get; set; } = DateTime.Now;
+    public enum OrderDirections { ASC = 0, DESC = 1 }
+    [JsonPropertyName("offset")]
+    public int Offset { get; set; } = 0;
+    [JsonPropertyName("limit")]
+    public int Limit { get; set; } = 30;
+    [JsonPropertyName("orderBy")]
+    public Expression<Func<T, object>> OrderBy { get; set; } = null;
+    [JsonPropertyName("orderDirection")]
+    public OrderDirections OrderDirection { get; set; } = OrderDirections.ASC;
+    [JsonPropertyName("at")]
+    public DateTime At { get; set; } = DateTime.Now;
     public GetListParams() { }
     public GetListParams(int? offset, int? limit)
     {
-      this.offset = offset ?? 0;
-      this.limit = limit ?? 30;
+      Offset = offset ?? 0;
+      Limit = limit ?? 30;
       if (limit > 100)
         throw new Exception("limit-too-much");
     }
 
     public int GetSkipNumber()
     {
-      return offset;
+      return Offset;
     }
 
     public void SetGetAllItems()
     {
-      offset = 0;
-      limit = int.MaxValue;
+      Offset = 0;
+      Limit = int.MaxValue;
     }
   }
 
   public class PostListParams : GetListParams<Post>
   {
+    public PostListParams() { }
     public PostListParams(int? offset, int? limit, string orderBy, int? orderDir) : base(offset, limit)
     {
-      this.orderBy = post => post.Id;
-      this.orderDir = OrderDir.DESC;
+      this.OrderBy = post => post.Id;
+      this.OrderDirection = OrderDirections.DESC;
       if (orderDir != null)
       {
-        this.orderDir = (OrderDir)orderDir;
+        this.OrderDirection = (OrderDirections)orderDir;
       }
-      if (orderBy == nameof(Post.Subject))
+      if (orderBy == nameof(Post.Title))
       {
-        this.orderBy = post => post.Subject;
+        this.OrderBy = post => post.Title;
       }
       else if (orderBy == nameof(Post.CreatedBy))
       {
-        this.orderBy = post => post.CreatedBy;
+        this.OrderBy = post => post.CreatedBy;
       }
       else if (orderBy == nameof(Post.ViewCount))
       {
-        this.orderBy = post => post.ViewCount;
+        this.OrderBy = post => post.ViewCount;
       }
       else if (orderBy == nameof(Post.CommentCount))
       {
-        this.orderBy = post => post.CommentCount;
+        this.OrderBy = post => post.CommentCount;
       }
     }
   }
 
   public class CommentListParams : GetListParams<PostComment>
   {
+    public CommentListParams() { }
     public CommentListParams(int? offset, int? limit) : base(offset, limit)
     {
-      orderBy = comment => comment.Id;
-      orderDir = OrderDir.DESC;
+      OrderBy = comment => comment.Id;
+      OrderDirection = OrderDirections.DESC;
     }
   }
 }

@@ -29,7 +29,7 @@ namespace DmcSocial.API
     public async Task<ActionResult<List<Tag>>> Get(string search)
     {
       var entities = await _repo.GetTags(search);
-      return Ok(entities.Select(u => new Models.Tag { value = u.Value, postCount = u.PostCount, LastModifiedAt = u.LastModifiedTime }).ToList());
+      return Ok(entities.Select(u => new Models.Tag { Value = u.Value, PostCount = u.PostCount, LastModifiedAt = u.LastModifiedTime }).ToList());
     }
 
     /// <summary>

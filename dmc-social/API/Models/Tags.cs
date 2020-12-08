@@ -2,10 +2,10 @@ using System;
 
 namespace DmcSocial.API.Models
 {
-    public class Tag
-    {
-        public string value { get; set; }
-        public int postCount { get; set; }
-        public DateTime? LastModifiedAt { get; set; }
-    }
+  public class Tag
+  {
+    public string Value { get; set; }
+    public int PostCount { get; set; }
+    public DateTime? LastModifiedAt { get; set; }
+  }
 }

@@ -83,7 +83,7 @@ namespace DmcSocial.Repositories
       return count;
     }
 
-    public async Task<Post> UpdatePostContent(int postId, string subject, string content, string actor)
+    public async Task<Post> UpdatePostContent(int postId, string title, string subtitle, string coverImageURL, string content, string actor)
     {
       var entity = await _db.Posts
       .Include(u => u.PostTags)
@@ -93,10 +93,12 @@ namespace DmcSocial.Repositories
         throw PostException.PostNotFound;
       var now = DateTime.Now;
       // Ignore update posttags
-      entity.Subject = subject;
+      entity.Title = title;
       entity.Content = content;
       entity.LastModifiedTime = now;
       entity.LastModifiedBy = actor;
+      entity.CoverImageURL = coverImageURL;
+      entity.Subtitle = subtitle;
       foreach (var postTag in entity.PostTags)
       {
         postTag.Tag.LastModifiedTime = now;
@@ -179,7 +181,7 @@ namespace DmcSocial.Repositories
         Count = u.Count()
       })
       .Skip(param.GetSkipNumber())
-      .Take(param.limit)
+      .Take(param.Limit)
       .OrderByDescending(u => u.Count)
       .ToListAsync();
 
@@ -199,12 +201,13 @@ namespace DmcSocial.Repositories
       return posts;
     }
 
-    public async Task IncreaseView(int postId)
+    public async Task<int> IncreaseView(int postId)
     {
       var count = await _db.Posts.Where(post => post.Id == postId).Select(post => new { post.ViewCount }).FirstAsync();
       var newCount = count.ViewCount + 1;
       _db.Posts.Attach(new Post { Id = postId, ViewCount = newCount }).Property(post => post.ViewCount).IsModified = true;
       await _db.SaveChangesAsync();
+      return newCount;
     }
 
     public async Task<Post> UpdatePostConfig(int postId, int postRestrictionType, string[] accessUsers)

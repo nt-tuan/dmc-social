@@ -1,9 +1,9 @@
 namespace DmcSocial.API.Models
 {
-    public class CreateComment
-    {
-        public int postId { get; set; }
-        public int? commentId { get; set; }
-        public string content { get; set; }
-    }
+  public class CreateComment
+  {
+    public int PostId { get; set; }
+    public int? CommentId { get; set; }
+    public string Content { get; set; }
+  }
 }

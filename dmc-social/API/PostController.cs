@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using DmcSocial.Models;
 using DmcSocial.API.Models;
 using DmcSocial.Repositories;
+using System.Linq.Expressions;
 
 namespace DmcSocial.API
 {
@@ -64,7 +65,7 @@ namespace DmcSocial.API
     /// <returns></returns>
     [HttpGet]
     [Route("search")]
-    public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? offset, int? limit, [FromQuery] string[] tags, [FromQuery] string[] keywords)
+    public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? offset, int? limit, [FromQuery] string[] tags)
     {
       var paging = new GetListParams<Post>(offset, limit);
       var posts = await _repo.SearchPosts(tags.ToList(), paging);
@@ -88,30 +89,18 @@ namespace DmcSocial.API
       return Ok(new PostResponse(post));
     }
 
-    [HttpPost("{id}/increaseView")]
+    [HttpGet("{id}/increaseView")]
     public async Task<ActionResult> InscreaseView(int id)
     {
-      await _repo.IncreaseView(id);
-      return Ok();
-    }
-
-
-    /// <summary>
-    /// Create a post
-    /// </summary>
-    /// <param name="req"></param>
-    /// <returns></returns>
-    [HttpPost]
-    public async Task<ActionResult<PostResponse>> CreatePost(CreatePost req)
-    {
-      var post = req.ToEntity();
-      var postTags = post.PostTags;
-      await _repo.CreatePost(post, _auth.GetUser());
-      foreach (var postTag in postTags)
+      try
       {
-        await _repo.AddTag(post, postTag.TagId);
+        var count = await _repo.IncreaseView(id);
+        return Ok(new { count });
       }
-      return Ok(new PostResponse(post));
+      catch
+      {
+        return NotFound();
+      }
     }
 
     /// <summary>
@@ -123,7 +112,7 @@ namespace DmcSocial.API
     [HttpPut("{id}")]
     public async Task<ActionResult<PostResponse>> UpdatePostContent(int id, UpdatePostContent req)
     {
-      var post = await _repo.UpdatePostContent(id, req.subject, req.content, _auth.GetUser());
+      var post = await _repo.UpdatePostContent(id, req.Title, req.Subtitle, req.CoverImageURL, req.Content, _auth.GetUser());
       return Ok(new PostResponse(post));
     }
 
@@ -136,7 +125,7 @@ namespace DmcSocial.API
     [HttpPut("{id}/config")]
     public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostConfig req)
     {
-      var post = await _repo.UpdatePostConfig(id, req.postRestrictionType, req.accessUsers);
+      var post = await _repo.UpdatePostConfig(id, req.PostRestrictionType, req.AccessUsers);
       return Ok(new PostResponse(post));
     }
 

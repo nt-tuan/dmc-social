@@ -12,16 +12,16 @@ namespace DmcSocial.Repositories
     public static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, GetListParams<T> pagingParam)
     {
       var chain = query;
-      chain = chain.Skip(pagingParam.GetSkipNumber()).Take(pagingParam.offset);
-      if (pagingParam.orderBy != null)
+      chain = chain.Skip(pagingParam.GetSkipNumber()).Take(pagingParam.Offset);
+      if (pagingParam.OrderBy != null)
       {
-        if (pagingParam.orderDir == GetListParams<T>.OrderDir.ASC)
+        if (pagingParam.OrderDirection == GetListParams<T>.OrderDirections.ASC)
         {
-          chain = chain.OrderBy(pagingParam.orderBy);
+          chain = chain.OrderBy(pagingParam.OrderBy);
         }
         else
         {
-          chain = chain.OrderByDescending(pagingParam.orderBy);
+          chain = chain.OrderByDescending(pagingParam.OrderBy);
         }
       }
       return chain;

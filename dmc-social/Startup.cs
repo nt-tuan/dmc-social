@@ -41,6 +41,7 @@ namespace DmcSocial
       services.AddScoped<IPostRepository, PostRepository>();
       services.AddScoped<ICommentRepository, CommentRepository>();
       services.AddScoped<ITagRepository, TagRepository>();
+      services.AddHttpContextAccessor();
       services.AddScoped<Authenticate, Authenticate>();
       services.AddSwaggerGen();
     }

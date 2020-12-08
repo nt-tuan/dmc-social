@@ -6,24 +6,24 @@ using DmcSocial.Models;
 
 namespace DmcSocial.API.Models
 {
-    public class CommentResponse
+  public class CommentResponse
+  {
+    public int Id { get; set; }
+    public string Content { get; set; }
+    public int? PostId { get; set; }
+    public int? CommentId { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string CreatedBy { get; set; }
+    public DateTime? LastModifiedAt { get; set; }
+    public CommentResponse(PostComment entity)
     {
-        public int id { get; set; }
-        public string content { get; set; }
-        public int? postId { get; set; }
-        public int? commentId { get; set; }
-        public DateTime createdAt { get; set; }
-        public string createdBy { get; set; }
-        public DateTime? lastModifiedAt { get; set; }
-        public CommentResponse(PostComment entity)
-        {
-            id = entity.Id;
-            content = entity.Content;
-            postId = entity.PostId;
-            commentId = entity.ParentPostCommentId;
-            createdBy = entity.CreatedBy;
-            createdAt = entity.DateCreated;
-            lastModifiedAt = entity.LastModifiedTime;
-        }
+      Id = entity.Id;
+      Content = entity.Content;
+      PostId = entity.PostId;
+      CommentId = entity.ParentPostCommentId;
+      CreatedBy = entity.CreatedBy;
+      CreatedAt = entity.DateCreated;
+      LastModifiedAt = entity.LastModifiedTime;
     }
+  }
 }

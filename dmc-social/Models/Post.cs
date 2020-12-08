@@ -7,7 +7,9 @@ namespace DmcSocial.Models
 {
   public class Post : BaseEntity
   {
-    public string Subject { get; set; }
+    public string Title { get; set; }
+    public string Subtitle { get; set; }
+    public string CoverImageURL { get; set; }
     public string Content { get; set; }
     public bool CanComment { get; set; }
     #region config

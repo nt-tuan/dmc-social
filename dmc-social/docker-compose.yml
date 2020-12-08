@@ -2,7 +2,7 @@
 version: "3.4"
 
 services:
-  dmcnews:
+  blogs:
     image: dmc-social
     build:
       context: .
