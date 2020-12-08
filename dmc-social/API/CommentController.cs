@@ -2,11 +2,12 @@ using System;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using DmcSocial.Repositories;
+using DmcSocial.Interfaces;
 using System.Collections.Generic;
 using DmcSocial.Models;
 using DmcSocial.API.Models;
 using System.Linq;
+using DmcSocial.Repositories;
 
 namespace DmcSocial.API
 {
@@ -14,20 +15,19 @@ namespace DmcSocial.API
   [ApiController]
   public class CommentController : ControllerBase
   {
-    ICommentRepository _repos;
-    Authenticate _auth;
-    public CommentController(Authenticate auth, ICommentRepository repos)
+    private readonly ICommentRepository _repo;
+    private readonly Authenticate _auth;
+    public CommentController(Authenticate auth, ICommentRepository repo)
     {
-      _repos = repos;
+      _repo = repo;
       _auth = auth;
     }
 
     [HttpGet]
     [Route("post/{postId}")]
-    public async Task<ActionResult<List<CommentResponse>>> GetPostComments(int postId, int pageIndex, int pageRows)
+    public async Task<ActionResult<List<CommentResponse>>> GetPostComments(int postId, int offset, int limit)
     {
-      var comments = await _repos.GetPostComments(postId,
-      new GetListParams<PostComment> { page = pageIndex, pageRows = pageRows });
+      var comments = await _repo.GetPostComments(postId, new CommentListParams(offset, limit));
       return comments.Select(u => new CommentResponse(u)).ToList();
     }
 
@@ -35,16 +35,15 @@ namespace DmcSocial.API
     [Route("post/{postId}/count")]
     public async Task<ActionResult<int>> GetPostCommentsCount(int postId)
     {
-      var count = await _repos.GetPostCommentsCount(postId);
+      var count = await _repo.GetPostCommentsCount(postId);
       return count;
     }
 
     [HttpGet]
     [Route("{commentId}/comments")]
-    public async Task<ActionResult<List<CommentResponse>>> GetSubPostComments(int commentId, int pageIndex, int pageRows)
+    public async Task<ActionResult<List<CommentResponse>>> GetSubPostComments(int commentId, int offset, int limit)
     {
-      var comments = await _repos.GetSubPostComments(commentId,
-      new GetListParams<PostComment> { page = pageIndex, pageRows = pageRows });
+      var comments = await _repo.GetSubPostComments(commentId, new CommentListParams(offset, limit));
       return comments.Select(u => new CommentResponse(u)).ToList();
     }
 
@@ -52,31 +51,30 @@ namespace DmcSocial.API
     [Route("{commentId}/comments/count")]
     public async Task<ActionResult<int>> GetSubPostCommentsCount(int commentId)
     {
-      var count = await _repos.GetSubPostCommentsCount(commentId);
+      var count = await _repo.GetSubPostCommentsCount(commentId);
       return count;
     }
 
     [HttpPost]
     public async Task<ActionResult<CommentResponse>> CreateComment(CreateComment req)
     {
-      var comment = new PostComment
-      {
-        Content = req.content,
-        PostId = req.postId,
-        ParentPostCommentId = req.commentId,
-        DateCreated = DateTime.Now,
-        CreatedBy = _auth.GetUser()
-      };
-      var entity = await _repos.CreatePostComment(comment);
+      var entity = await _repo.CreatePostComment(req.postId, req.commentId, req.content, _auth.GetUser());
       return new CommentResponse(entity);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<CommentResponse>> UpdateComment(int id, UpdateComment payload)
+    {
+      var comment = await _repo.UpdatePostComment(id, payload.content, _auth.GetUser());
+      return new CommentResponse(comment);
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteComment(int id)
     {
-      var comment = await _repos.GetPostCommentById(id);
+      var comment = await _repo.GetPostCommentById(id);
       if (comment == null) return NotFound();
-      await _repos.DeleteComment(comment);
+      await _repo.DeleteComment(comment);
       return Ok();
     }
   }

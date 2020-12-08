@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using DmcSocial.Repositories;
+using DmcSocial.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using DmcSocial.Models;

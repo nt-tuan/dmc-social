@@ -4,10 +4,11 @@ using System;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using DmcSocial.Repositories;
+using DmcSocial.Interfaces;
 using System.Collections.Generic;
 using DmcSocial.Models;
 using DmcSocial.API.Models;
+using DmcSocial.Repositories;
 
 namespace DmcSocial.API
 {
@@ -15,33 +16,33 @@ namespace DmcSocial.API
   [ApiController]
   public class PostController : ControllerBase
   {
-    IPostRepository _repos;
-    Authenticate _auth;
-    public PostController(IPostRepository repos, Authenticate auth)
+    private readonly IPostRepository _repo;
+    private readonly Authenticate _auth;
+    public PostController(IPostRepository repo, Authenticate auth)
     {
-      _repos = repos;
+      _repo = repo;
       _auth = auth;
     }
 
     /// <summary>
     /// Get posts
     /// </summary>
-    /// <param name="pageIndex"></param>
-    /// <param name="pageRows"></param>
+    /// <param name="offset"></param>
+    /// <param name="limit"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<List<PostResponse>>> GetPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags)
+    public async Task<ActionResult<List<PostResponse>>> GetPosts(int? offset, int? limit, string by, int? dir, [FromQuery] string[] tags)
     {
-      var paging = new GetListParams<Post>(pageIndex, pageRows);
-      var posts = await _repos.GetPosts(tags.ToList(), paging);
+      var paging = new PostListParams(offset, limit, by, dir);
+      var posts = await _repo.GetPosts(tags.ToList(), paging);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
 
     [HttpGet]
     [Route("count")]
-    public async Task<ActionResult<int>> CountPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags)
+    public async Task<ActionResult<int>> CountPosts([FromQuery] string[] tags)
     {
-      var total = await _repos.CountPosts(tags.ToList());
+      var total = await _repo.CountPosts(tags.ToList());
       return total;
     }
 
@@ -49,7 +50,7 @@ namespace DmcSocial.API
     [Route("metric/{id}")]
     public async Task<ActionResult<PostMetric>> GetMetricById(int id)
     {
-      var metric = await _repos.GetPostMetricById(id);
+      var metric = await _repo.GetPostMetricById(id);
       if (metric == null) return NotFound();
       return metric;
     }
@@ -63,10 +64,10 @@ namespace DmcSocial.API
     /// <returns></returns>
     [HttpGet]
     [Route("search")]
-    public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? pageIndex, int? pageRows, [FromQuery] string[] tags, [FromQuery] string[] keywords)
+    public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? offset, int? limit, [FromQuery] string[] tags, [FromQuery] string[] keywords)
     {
-      var paging = new GetListParams<Post>(pageIndex, pageRows);
-      var posts = await _repos.SearchPosts(tags.ToList(), paging);
+      var paging = new GetListParams<Post>(offset, limit);
+      var posts = await _repo.SearchPosts(tags.ToList(), paging);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
 
@@ -79,14 +80,21 @@ namespace DmcSocial.API
     [HttpGet("{id}")]
     public async Task<ActionResult<PostResponse>> GetPost(int id)
     {
-      var post = await _repos.GetPostById(id);
+      var post = await _repo.GetPostById(id);
       if (post == null)
       {
         return NotFound("not-found");
       }
-      await _repos.MarkPostViewed(post);
       return Ok(new PostResponse(post));
     }
+
+    [HttpPost("{id}/increaseView")]
+    public async Task<ActionResult> InscreaseView(int id)
+    {
+      await _repo.IncreaseView(id);
+      return Ok();
+    }
+
 
     /// <summary>
     /// Create a post
@@ -98,10 +106,10 @@ namespace DmcSocial.API
     {
       var post = req.ToEntity();
       var postTags = post.PostTags;
-      await _repos.CreatePost(post, _auth.GetUser());
+      await _repo.CreatePost(post, _auth.GetUser());
       foreach (var postTag in postTags)
       {
-        await _repos.AddTag(post, postTag.TagId);
+        await _repo.AddTag(post, postTag.TagId);
       }
       return Ok(new PostResponse(post));
     }
@@ -115,7 +123,7 @@ namespace DmcSocial.API
     [HttpPut("{id}")]
     public async Task<ActionResult<PostResponse>> UpdatePostContent(int id, UpdatePostContent req)
     {
-      var post = await _repos.UpdatePostContent(id, req.subject, req.content, _auth.GetUser());
+      var post = await _repo.UpdatePostContent(id, req.subject, req.content, _auth.GetUser());
       return Ok(new PostResponse(post));
     }
 
@@ -126,9 +134,9 @@ namespace DmcSocial.API
     /// <param name="req"></param>
     /// <returns></returns>
     [HttpPut("{id}/config")]
-    public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostContent req)
+    public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostConfig req)
     {
-      var post = await _repos.UpdatePostContent(id, req.subject, req.subject, _auth.GetUser());
+      var post = await _repo.UpdatePostConfig(id, req.postRestrictionType, req.accessUsers);
       return Ok(new PostResponse(post));
     }
 
@@ -140,7 +148,7 @@ namespace DmcSocial.API
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeletePost(int id)
     {
-      await _repos.DeletePost(id, _auth.GetUser());
+      await _repo.DeletePost(id, _auth.GetUser());
       return Ok();
     }
 
@@ -154,10 +162,10 @@ namespace DmcSocial.API
     [Route("{postId}/tag")]
     public async Task<ActionResult> AddTag(int postId, string tag)
     {
-      var post = await _repos.GetPostById(postId, false);
+      var post = await _repo.GetPostById(postId, false);
       if (post == null)
         return NotFound();
-      await _repos.AddTag(post, tag);
+      await _repo.AddTag(post, tag);
       return Ok();
     }
 
@@ -171,10 +179,10 @@ namespace DmcSocial.API
     [Route("{postId}/tag")]
     public async Task<ActionResult> DeleteTag(int postId, string tag)
     {
-      var post = await _repos.GetPostById(postId, false);
+      var post = await _repo.GetPostById(postId, false);
       if (post == null)
         return NotFound();
-      await _repos.RemoveTag(post, tag);
+      await _repo.RemoveTag(post, tag);
       return Ok();
     }
   }

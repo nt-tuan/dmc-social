@@ -13,101 +13,90 @@ using System.Text.Json.Serialization;
 
 namespace DmcSocial.Repositories
 {
-    public class DataSeeder
+  public class DataSeeder
+  {
+    private readonly AppDbContext _dbContext;
+    public DataSeeder(AppDbContext dbContext)
     {
-        AppDbContext dbContext;
-        ILogger logger;
-        public DataSeeder(AppDbContext dbContext, ILoggerFactory factory)
-        {
-            this.dbContext = dbContext;
-            logger = factory.CreateLogger(typeof(DataSeeder));
-        }
-        Tag[] tags = new[]{
-            new Tag {Value="system", IsSystemTag=true, NormalizeValue="system"},
-            new Tag {Value="slide", IsSystemTag=true, NormalizeValue="slider"}
-        };
-
-        public void CorrectPosts()
-        {
-            var posts = dbContext.Posts
-            .Include(u => u.Comments)
-            .ToList();
-            foreach (var post in posts)
-            {
-                post.CommentCount = post.Comments.Where(u => u.DateRemoved == null).Count();
-                dbContext.Posts.Update(post);
-            }
-            dbContext.SaveChanges();
-        }
-
-        public void CorrectComments()
-        {
-            var comments = dbContext.PostComments.Include(u => u.ChildrenPostComments).ToList();
-            foreach (var comment in comments)
-            {
-                comment.CommentCount = comment.ChildrenPostComments.Where(u => u.DateRemoved == null).Count();
-                dbContext.PostComments.Update(comment);
-            }
-            dbContext.SaveChanges();
-        }
-
-        public void CorrectTags()
-        {
-            var tags = dbContext.Tags.Where(u => u.DateRemoved == null).ToList();
-            foreach (var tag in tags)
-            {
-                var postCount = dbContext.PostTags.Where(postTag => postTag.TagId == tag.Value && postTag.Post.DateRemoved == null).Count();
-                tag.PostCount = postCount;
-            }
-            dbContext.UpdateRange(tags);
-            dbContext.SaveChanges();
-        }
-
-        public List<Tag> loadTags()
-        {
-            var filepath = Environment.GetEnvironmentVariable("INIT_TAGS_FILE");
-            if (string.IsNullOrEmpty(filepath))
-            {
-                return new List<Tag>();
-            }
-            try
-            {
-                using (var reader = new StreamReader(filepath))
-                {
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                    {
-                        csv.Configuration.Delimiter = ";";
-                        csv.Configuration.HeaderValidated = null;
-                        csv.Configuration.MissingFieldFound = null;
-                        var records = csv.GetRecords<Tag>().ToList();
-                        return records;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public void Seed()
-        {
-            var tags = loadTags();
-            foreach (var tag in tags)
-            {
-                var e = dbContext.Tags.Find(tag.Value);
-                if (e == null)
-                {
-                    tag.DateCreated = DateTime.Now;
-                    tag.CreatedBy = "system";
-                    dbContext.Tags.Add(tag);
-                    dbContext.SaveChanges();
-                }
-            }
-
-            CorrectPosts();
-            CorrectComments();
-            CorrectTags();
-        }
+      _dbContext = dbContext;
     }
+    public void CorrectPosts()
+    {
+      var posts = _dbContext.Posts
+      .Include(u => u.Comments)
+      .ToList();
+      foreach (var post in posts)
+      {
+        post.CommentCount = post.Comments.Where(u => u.DateRemoved == null).Count();
+        _dbContext.Posts.Update(post);
+      }
+      _dbContext.SaveChanges();
+    }
+
+    public void CorrectComments()
+    {
+      var comments = _dbContext.PostComments.Include(u => u.ChildrenPostComments).ToList();
+      foreach (var comment in comments)
+      {
+        comment.CommentCount = comment.ChildrenPostComments.Where(u => u.DateRemoved == null).Count();
+        _dbContext.PostComments.Update(comment);
+      }
+      _dbContext.SaveChanges();
+    }
+
+    public void CorrectTags()
+    {
+      var tags = _dbContext.Tags.Where(u => u.DateRemoved == null).ToList();
+      foreach (var tag in tags)
+      {
+        var postCount = _dbContext.PostTags.Where(postTag => postTag.TagId == tag.Value && postTag.Post.DateRemoved == null).Count();
+        tag.PostCount = postCount;
+      }
+      _dbContext.UpdateRange(tags);
+      _dbContext.SaveChanges();
+    }
+
+    public List<Tag> LoadTags()
+    {
+      var filepath = Environment.GetEnvironmentVariable("INIT_TAGS_FILE");
+      if (string.IsNullOrEmpty(filepath))
+      {
+        return new List<Tag>();
+      }
+      try
+      {
+        using var reader = new StreamReader(filepath);
+        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        csv.Configuration.Delimiter = ";";
+        csv.Configuration.HeaderValidated = null;
+        csv.Configuration.MissingFieldFound = null;
+        var records = csv.GetRecords<Tag>().ToList();
+        return records;
+      }
+      catch (Exception e)
+      {
+        throw e;
+      }
+    }
+
+    public void Seed()
+    {
+      var tags = LoadTags();
+      foreach (var tag in tags)
+      {
+        var e = _dbContext.Tags.Find(tag.Value);
+        if (e == null)
+        {
+          tag.DateCreated = DateTime.Now;
+          tag.CreatedBy = "system";
+          _dbContext.Tags.Add(tag);
+          _dbContext.SaveChanges();
+        }
+      }
+
+      CorrectPosts();
+      CorrectComments();
+      CorrectTags();
+    }
+  }
 }
