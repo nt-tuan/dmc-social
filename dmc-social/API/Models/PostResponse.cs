@@ -19,11 +19,14 @@ namespace DmcSocial.API.Models
     public string[] Tags { get; set; }
     public int ViewCount { get; set; }
     public int CommentCount { get; set; }
-    public PostListItemResponse(DmcSocial.Models.Post entity)
+    public PostListItemResponse(Post entity)
     {
       Id = entity.Id;
       Title = entity.Title;
       LastModifiedAt = entity.LastModifiedDate;
+      CoverImageURL = entity.CoverImageURL;
+      Subtitle = entity.Subtitle;
+      LastModifiedBy = entity.LastModifiedBy;
       CreatedBy = entity.CreatedBy;
       CreatedAt = entity.DateCreated;
       ViewCount = entity.ViewCount;

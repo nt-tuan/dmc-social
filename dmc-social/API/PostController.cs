@@ -125,7 +125,7 @@ namespace DmcSocial.API
     [HttpPut("{id}/config")]
     public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostConfig req)
     {
-      var post = await _repo.UpdatePostConfig(id, req.PostRestrictionType, req.AccessUsers);
+      var post = await _repo.UpdatePostConfig(id, req.PostRestrictionType, req.AccessUsers, req.CanComment);
       return Ok(new PostResponse(post));
     }
 

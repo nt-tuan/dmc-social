@@ -14,7 +14,7 @@ namespace DmcSocial.Interfaces
     Task<Post> GetPostById(int id, bool load = true);
     Task<PostMetric> GetPostMetricById(int id);
     Task<Post> UpdatePostContent(int postId, string title, string subtitle, string coverImageURL, string content, string actor);
-    Task<Post> UpdatePostConfig(int postId, int PostRestrictionType, string[] PostAccessUsers);
+    Task<Post> UpdatePostConfig(int postId, int PostRestrictionType, string[] PostAccessUsers, bool canComment);
     Task DeletePost(int postId, string actor);
     Task AddTag(Post entity, string tag);
     Task RemoveTag(Post entity, string tag);

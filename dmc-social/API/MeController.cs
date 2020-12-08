@@ -88,7 +88,7 @@ namespace DmcSocial.API
     {
       var result = await HandlePostOwner(id);
       if (result != null) return result;
-      var post = await _post.UpdatePostConfig(id, req.PostRestrictionType, req.AccessUsers);
+      var post = await _post.UpdatePostConfig(id, req.PostRestrictionType, req.AccessUsers, req.CanComment);
       return Ok(new PostResponse(post));
     }
 

@@ -210,12 +210,18 @@ namespace DmcSocial.Repositories
       return newCount;
     }
 
-    public async Task<Post> UpdatePostConfig(int postId, int postRestrictionType, string[] accessUsers)
+    public async Task<Post> UpdatePostConfig(int postId, int postRestrictionType, string[] accessUsers, bool canComment)
     {
       var entity = await _db.Posts.FindAsync(postId);
       entity.PostAccessUsers = accessUsers;
       entity.PostRestrictionType = postRestrictionType;
-      _db.Posts.Attach(entity).Property(post => new { post.PostAccessUsers, post.PostRestrictionType }).IsModified = true;
+      entity.CanComment = canComment;
+      _db.Posts.Attach(entity).Property(post => new
+      {
+        post.PostAccessUsers,
+        post.PostRestrictionType,
+        post.CanComment
+      }).IsModified = true;
       await _db.SaveChangesAsync();
       return entity;
     }
