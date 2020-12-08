@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using DmcSocial.Repositories;
+using DmcSocial.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using DmcSocial.Models;
@@ -13,10 +13,10 @@ namespace DmcSocial.API
   [ApiController]
   public class TagController : ControllerBase
   {
-    ITagRepository _repos;
-    public TagController(ITagRepository repos)
+    private readonly ITagRepository _repo;
+    public TagController(ITagRepository repo)
     {
-      _repos = repos;
+      _repo = repo;
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ namespace DmcSocial.API
     [Route("")]
     public async Task<ActionResult<List<Tag>>> Get(string search)
     {
-      var entities = await _repos.GetTags(search);
+      var entities = await _repo.GetTags(search);
       return Ok(entities.Select(u => new Models.Tag { value = u.Value, postCount = u.PostCount, LastModifiedAt = u.LastModifiedTime }).ToList());
     }
 
@@ -42,7 +42,7 @@ namespace DmcSocial.API
     public async Task<ActionResult<Tag>> Put(string tag)
     {
       var e = new Tag(tag);
-      await _repos.AddTag(e);
+      await _repo.AddTag(e);
       return Ok(e);
     }
   }

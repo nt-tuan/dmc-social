@@ -1,10 +1,20 @@
+using Microsoft.AspNetCore.Http;
+
 namespace DmcSocial.Repositories
 {
-    public class Authenticate
+  public class Authenticate
+  {
+    private readonly IHttpContextAccessor _contextAccessor;
+    public Authenticate(IHttpContextAccessor contextAccessor)
     {
-        public string GetUser()
-        {
-            return "tuannt";
-        }
+      _contextAccessor = contextAccessor;
     }
+    public string GetUser()
+    {
+      var user = _contextAccessor.HttpContext.Request.Headers["X-User"];
+      if (string.IsNullOrEmpty(user))
+        return "anonymous";
+      return user;
+    }
+  }
 }
