@@ -56,7 +56,7 @@ namespace DmcSocial.API
       await _post.CreatePost(post, _auth.GetUser());
       foreach (var postTag in postTags)
       {
-        await _post.AddTag(post, postTag.TagId);
+        await _post.AddTag(post, postTag.TagId, _auth.GetUser());
       }
       return Ok(new PostResponse(post));
     }
@@ -124,7 +124,7 @@ namespace DmcSocial.API
       var post = await _post.GetPostById(postId, false);
       if (post == null)
         return NotFound();
-      await _post.AddTag(post, tag);
+      await _post.AddTag(post, tag, _auth.GetUser());
       return Ok();
     }
 
@@ -143,7 +143,7 @@ namespace DmcSocial.API
       var post = await _post.GetPostById(postId, false);
       if (post == null)
         return NotFound();
-      await _post.RemoveTag(post, tag);
+      await _post.RemoveTag(post, tag, _auth.GetUser());
       return Ok();
     }
     #endregion
@@ -172,7 +172,7 @@ namespace DmcSocial.API
       if (result != null) return result;
       var comment = await _comment.GetPostCommentById(id);
       if (comment == null) return NotFound();
-      await _comment.DeleteComment(comment);
+      await _comment.DeleteComment(comment, _auth.GetUser());
       return Ok();
     }
     #endregion

@@ -6,18 +6,17 @@ namespace DmcSocial.Models
   public class Tag : BaseEntity
   {
     public string Value { get; set; }
-    public bool IsSystemTag { get; set; } = false;
+    public string Reference { get; set; }
     public int PostCount { get; set; }
     public string NormalizeValue { get; set; }
-    public Tag() { }
-    public Tag(string tag)
+    public Tag() : base() { }
+    public Tag(string tag, string actor) : base(actor)
     {
       Value = tag;
-      IsSystemTag = true;
       NormalizeValue = "";
       if (string.IsNullOrEmpty(tag))
         return;
-      NormalizeValue = Repositories.Helper.NormalizeString(tag);
+      NormalizeValue = Repositories.Helper.NormalizeTag(tag);
     }
   }
 }

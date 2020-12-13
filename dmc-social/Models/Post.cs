@@ -17,10 +17,8 @@ namespace DmcSocial.Models
     public string[] PostAccessUsers { get; set; }
     #endregion
 
-    //META DATA
-    public DateTime LastModifiedDate { get; set; }
-
     #region metric
+    public string LookupValue { get; set; }
     public int ViewCount { get; set; }
     public int CommentCount { get; set; }
     #endregion
@@ -28,6 +26,8 @@ namespace DmcSocial.Models
     public ICollection<PostComment> Comments { get; set; }
 
     public ICollection<PostTag> PostTags { get; set; }
+    public Post() : base() { }
+    public Post(string actor) : base(actor) { }
   }
 
   public class PostMetric

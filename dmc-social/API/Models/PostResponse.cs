@@ -23,7 +23,7 @@ namespace DmcSocial.API.Models
     {
       Id = entity.Id;
       Title = entity.Title;
-      LastModifiedAt = entity.LastModifiedDate;
+      LastModifiedAt = entity.LastModifiedTime;
       CoverImageURL = entity.CoverImageURL;
       Subtitle = entity.Subtitle;
       LastModifiedBy = entity.LastModifiedBy;

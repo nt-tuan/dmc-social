@@ -6,6 +6,7 @@ using DmcSocial.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using DmcSocial.Models;
+using DmcSocial.Repositories;
 
 namespace DmcSocial.API
 {
@@ -14,9 +15,11 @@ namespace DmcSocial.API
   public class TagController : ControllerBase
   {
     private readonly ITagRepository _repo;
-    public TagController(ITagRepository repo)
+    private readonly Authenticate _auth;
+    public TagController(ITagRepository repo, Authenticate auth)
     {
       _repo = repo;
+      _auth = auth;
     }
 
     /// <summary>
@@ -41,8 +44,9 @@ namespace DmcSocial.API
     [Route("")]
     public async Task<ActionResult<Tag>> Put(string tag)
     {
-      var e = new Tag(tag);
-      await _repo.AddTag(e);
+      var user = _auth.GetUser();
+      var e = new Tag(tag, user);
+      await _repo.AddTag(e, _auth.GetUser());
       return Ok(e);
     }
   }

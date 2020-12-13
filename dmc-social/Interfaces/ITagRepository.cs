@@ -7,6 +7,6 @@ namespace DmcSocial.Interfaces
   public interface ITagRepository
   {
     Task<List<Tag>> GetTags(string search);
-    Task<Tag> AddTag(Tag tag);
+    Task<Tag> AddTag(Tag tag, string actor);
   }
 }

@@ -11,23 +11,24 @@ namespace DmcSocial.Repositories
   public class TagRepository : ITagRepository
   {
     private readonly AppDbContext _db;
+    private readonly Repository _repo;
     public TagRepository(AppDbContext db)
     {
       _db = db;
+      _repo = new Repository(db);
     }
 
-    public async Task<Tag> AddTag(Tag tag)
+    public async Task<Tag> AddTag(Tag tag, string actor)
     {
-      _db.Tags.Add(tag);
+      _repo.Add(tag, actor);
       await _db.SaveChangesAsync();
       return tag;
     }
 
     public async Task<List<Tag>> GetTags(string search)
     {
-      var query = _db.Tags
-      .Where(u => u.DateRemoved == null);
-      var normalizeValue = Helper.NormalizeString(search);
+      var query = _repo.GetQuery<Tag>();
+      var normalizeValue = Helper.NormalizeTag(search);
       if (!string.IsNullOrEmpty(search))
         query = query.Where(u => search == "" || u.NormalizeValue.Contains(normalizeValue));
       var tags = await query.ToListAsync();

@@ -12,8 +12,8 @@ namespace DmcSocial.Interfaces
     Task<List<PostComment>> GetSubPostComments(int commentId, GetListParams<PostComment> param);
     Task<int> GetPostCommentsCount(int postId);
     Task<int> GetSubPostCommentsCount(int commentId);
-    Task DeleteComment(PostComment comment);
+    Task DeleteComment(PostComment comment, string actor);
     Task<PostComment> GetPostCommentById(int id);
-    Task<PostComment> UpdatePostComment(int id, string content, string by);
+    Task<PostComment> UpdatePostComment(int id, string content, string actor);
   }
 }

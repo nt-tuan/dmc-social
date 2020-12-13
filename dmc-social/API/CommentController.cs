@@ -74,7 +74,7 @@ namespace DmcSocial.API
     {
       var comment = await _repo.GetPostCommentById(id);
       if (comment == null) return NotFound();
-      await _repo.DeleteComment(comment);
+      await _repo.DeleteComment(comment, _auth.GetUser());
       return Ok();
     }
   }

@@ -8,7 +8,6 @@ namespace DmcSocial.Repositories
 {
   public static class Helper
   {
-    readonly static string ACCEPT_TAG_PATTER = @"[^\p{L}\p{N}]";
     public static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, GetListParams<T> pagingParam)
     {
       var chain = query;
@@ -27,21 +26,26 @@ namespace DmcSocial.Repositories
       return chain;
     }
 
-    private static string ConvertToUnSign3(string s)
-    {
-      Regex regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");
-      string temp = s.Normalize(NormalizationForm.FormD);
-      return regex.Replace(temp, String.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D');
-    }
     public static string NormalizeString(string str)
     {
       if (string.IsNullOrEmpty(str))
         return str;
       var normalized = str;
       normalized = normalized.ToLower();
-      normalized = ConvertToUnSign3(normalized);
-      normalized = Regex.Replace(normalized, ACCEPT_TAG_PATTER, "");
+      normalized = Regex.Replace(normalized, "à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ", "a");
+      normalized = Regex.Replace(normalized, "è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ", "e");
+      normalized = Regex.Replace(normalized, "ì|í|ị|ỉ|ĩ", "i");
+      normalized = Regex.Replace(normalized, "ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ", "o");
+      normalized = Regex.Replace(normalized, "ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ", "u");
+      normalized = Regex.Replace(normalized, "ỳ|ý|ỵ|ỷ|ỹ", "y");
+      normalized = Regex.Replace(normalized, "đ", "d");
+      normalized = Regex.Replace(normalized, "[^a-z0-9]", "_");
       return normalized;
+    }
+
+    public static string NormalizeTag(string str)
+    {
+      return NormalizeString(str).Replace("_", "");
     }
   }
 }

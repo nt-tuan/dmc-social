@@ -9,49 +9,50 @@ using System.Threading.Tasks;
 using DmcSocial.Models;
 using Microsoft.EntityFrameworkCore;
 using DmcSocial.Interfaces;
+using System.Collections.Immutable;
+using System.IO;
+
 namespace DmcSocial.Repositories
 {
   public class PostRepository : IPostRepository
   {
     private readonly AppDbContext _db;
+    private readonly int _titleWeight;
+    private readonly IRepository _repo;
     public PostRepository(AppDbContext db)
     {
       _db = db;
+      _titleWeight = 20;
+      _repo = new Repository(db);
     }
 
     private IQueryable<Post> GetPostQuery()
     {
-      return _db.Posts
-      .Include(u => u.PostTags).Where(post => post.DateRemoved == null).AsQueryable();
+      return _repo.GetQuery<Post>().Include(u => u.PostTags);
     }
 
     public async Task<Post> CreatePost(Post post, string actor)
     {
-      var now = DateTime.Now;
-      post.CreatedBy = actor;
-      post.LastModifiedBy = actor;
-      post.DateCreated = now;
-      post.LastModifiedTime = now;
       post.PostTags = null;
-      _db.Add(post);
+      _repo.Add(post, actor);
       await _db.SaveChangesAsync();
       return post;
     }
 
     public async Task<Post> GetPostById(int id, bool load = true)
     {
-      var query = _db.Posts.AsQueryable();
+      var query = _repo.GetQuery<Post>();
       if (load)
       {
         query = GetPostQuery();
       }
-      var post = await query.Where(post => post.Id == id && post.DateRemoved == null).FirstOrDefaultAsync();
+      var post = await query.FirstOrDefaultAsync(post => post.Id == id);
       return post;
     }
 
     public async Task<PostMetric> GetPostMetricById(int id)
     {
-      var post = await _db.Posts.FindAsync(id);
+      var post = await _repo.GetQuery<Post>().FirstOrDefaultAsync(u => u.Id == id);
       return new PostMetric(post);
     }
 
@@ -95,8 +96,6 @@ namespace DmcSocial.Repositories
       // Ignore update posttags
       entity.Title = title;
       entity.Content = content;
-      entity.LastModifiedTime = now;
-      entity.LastModifiedBy = actor;
       entity.CoverImageURL = coverImageURL;
       entity.Subtitle = subtitle;
       foreach (var postTag in entity.PostTags)
@@ -104,6 +103,7 @@ namespace DmcSocial.Repositories
         postTag.Tag.LastModifiedTime = now;
       }
       _db.Update(entity);
+      _repo.Update(entity, actor);
       await _db.SaveChangesAsync();
       return entity;
     }
@@ -116,89 +116,88 @@ namespace DmcSocial.Repositories
       .Where(post => post.Id == id && post.DateRemoved == null).FirstOrDefaultAsync();
       if (entity == null || entity.DateRemoved != null)
         throw PostException.PostNotFound;
-      entity.DateRemoved = DateTime.Now;
       foreach (var postTag in entity.PostTags)
       {
         postTag.Tag.PostCount--;
       }
-      _db.Update(entity);
+      _db.UpdateRange(entity.PostTags);
+      _repo.Delete(entity, actor);
       await _db.SaveChangesAsync();
     }
 
     private async Task<Tag> GetTag(string tag)
     {
-      var entity = await _db.Tags.FindAsync(tag);
+      var entity = await _repo.GetQuery<Tag>().FirstOrDefaultAsync(e => e.NormalizeValue == tag);
       return entity;
     }
     private void SetTagModifiedTime(Post post, Tag tag)
     {
-      if (post.LastModifiedTime == null)
-        return;
-      if (tag.LastModifiedTime == null)
-      {
-        tag.LastModifiedTime = post.LastModifiedTime;
-        return;
-      }
       if (tag.LastModifiedTime > post.LastModifiedTime)
         return;
       tag.LastModifiedTime = post.LastModifiedTime;
     }
-    public async Task AddTag(Post post, string tag)
+    public async Task AddTag(Post post, string tag, string actor)
     {
+      var existed = await _db.PostTags.AnyAsync(u => u.PostId == post.Id && u.TagId == tag);
+      if (existed) return;
       var tagEntity = await GetTag(tag);
       if (tagEntity == null)
         throw TagException.TagNotFound;
+      var entity = new PostTag(actor) { PostId = post.Id, TagId = tag };
+      _repo.Add(entity, actor);
 
-      var entity = new PostTag { PostId = post.Id, TagId = tag };
-      _db.PostTags.Add(entity);
       tagEntity.PostCount++;
-      SetTagModifiedTime(post, tagEntity);
-      _db.Tags.Update(tagEntity);
+      _db.Tags.Attach(tagEntity).Property(u => u.PostCount).IsModified = true;
+
       await _db.SaveChangesAsync();
     }
 
-    public async Task RemoveTag(Post post, string tag)
+    public async Task RemoveTag(Post post, string tag, string actor)
     {
-      var entity = await _db.PostTags.FindAsync(post.Id, tag);
-      var tagEntity = await _db.Tags.FindAsync(tag);
+      var entity = await _db.PostTags.
+      Include(u => u.Tag).
+      FirstOrDefaultAsync(u => u.PostId == post.Id && u.TagId == tag);
       if (entity == null)
         throw TagException.TagNotFound;
-      _db.PostTags.Remove(entity);
-      tagEntity.PostCount--;
+      _repo.Delete(entity, actor);
+
+      entity.Tag.PostCount--;
+      _db.Tags.Attach(entity.Tag).Property(u => u.PostCount).IsModified = true;
       await _db.SaveChangesAsync();
     }
 
-    public async Task<List<Post>> SearchPosts(List<string> tagIds, GetListParams<Post> param)
+    public async Task<List<Post>> SearchPosts(List<string> tagIds, List<string> keywords, GetListParams<Post> param)
     {
-      if (tagIds.Count() == 0)
-        return new List<Post>();
-      var relatedPostTags = await _db.PostTags
-      .Where(u => tagIds.Contains(u.TagId) && u.Post.DateRemoved == null)
-      .GroupBy(u => u.PostId)
-      .Select(u => new
+      tagIds.Sort();
+      var tagsLike = string.Join("%", tagIds.Select(tag => Helper.NormalizeTag(tag)));
+      keywords = keywords.Select(w => Helper.NormalizeString(w)).ToList();
+      var result = await _db.WordFrequencies.
+      Where(w => keywords.Contains(w.Word)).
+      GroupBy(u => u.PostId).
+      Select(u => new
       {
         PostId = u.Key,
-        Count = u.Count()
-      })
-      .Skip(param.Offset)
-      .Take(param.Limit)
-      .OrderByDescending(u => u.Count)
-      .ToListAsync();
+        Frequency = u.Sum(w => w.Frequency),
+        MatchedWordCount = u.Count()
+      }).
+      Skip(param.Offset).Take(param.Limit).
+      OrderByDescending(u => new { u.MatchedWordCount, u.Frequency }).ToListAsync();
 
-      var postIds = relatedPostTags.Select(u => u.PostId);
-      if (postIds.Count() == 0)
-      {
-        return new List<Post>();
-      }
+      var postIds = result.Select(u => u.PostId);
       var posts = await _db.Posts.Where(u => postIds.Contains(u.Id)).ToListAsync();
+      var postDict = posts.ToDictionary(u => u.Id);
+      var postsResult = result.Select(u => postDict.ContainsKey(u.PostId) ? postDict[u.PostId] : null).Where(u => u != null);
+      return postsResult.ToList();
+    }
 
-      posts.Sort((a, b) =>
-      {
-        var countA = postIds.FirstOrDefault(u => u == a.Id);
-        var countB = postIds.FirstOrDefault(u => u == b.Id);
-        return countA.CompareTo(countB);
-      });
-      return posts;
+    public async Task<int> CountSearchedPosts(List<string> tagIds, List<string> keywords)
+    {
+      var tagsLike = string.Join("%", tagIds.Select(tag => Helper.NormalizeTag(tag)));
+      keywords = keywords.Select(w => Helper.NormalizeString(w)).ToList();
+      var result = await _db.WordFrequencies.
+      Where(w => keywords.Contains(w.Word)).
+      GroupBy(u => u.PostId).CountAsync();
+      return result;
     }
 
     public async Task<int> IncreaseView(int postId)
@@ -222,8 +221,66 @@ namespace DmcSocial.Repositories
         post.PostRestrictionType,
         post.CanComment
       }).IsModified = true;
+      _repo.Update(entity, entity.CreatedBy);
       await _db.SaveChangesAsync();
       return entity;
+    }
+
+    public Dictionary<string, long> ExtractWordFrequency(string text)
+    {
+      var words = Helper.NormalizeString(text).Split("_");
+      var dict = new Dictionary<string, long>();
+      foreach (var word in words)
+      {
+        if (word.Length < 2) continue;
+        if (dict.ContainsKey(word))
+        {
+          dict[word]++;
+        }
+        else
+        {
+          dict[word] = 1;
+        }
+      }
+      return dict;
+    }
+
+    public List<WordFrequency> GetWordFrequencies(Post post)
+    {
+      var dict = ExtractWordFrequency(post.Content);
+      var titleDict = ExtractWordFrequency(post.Title);
+      foreach (var pair in titleDict)
+      {
+        var value = pair.Value * _titleWeight;
+        if (dict.ContainsKey(pair.Key))
+        {
+          dict[pair.Key] += value;
+        }
+        else
+        {
+          dict[pair.Key] = value;
+        }
+      }
+      return dict.Select(pair =>
+      {
+        return new WordFrequency
+        {
+          Word = pair.Key,
+          Frequency = pair.Value,
+          PostId = post.Id
+        };
+      }).ToList();
+    }
+
+    public async Task UpdateWordFrequencies(Post post)
+    {
+      var wordFrequencies = GetWordFrequencies(post);
+      var outdated = await _db.WordFrequencies.Where(u => u.PostId == post.Id).ToListAsync();
+      _db.ChangeTracker.AutoDetectChangesEnabled = false;
+      _db.RemoveRange(outdated);
+      await _db.SaveChangesAsync();
+      _db.AddRange(wordFrequencies);
+      await _db.SaveChangesAsync();
     }
   }
 }

@@ -65,11 +65,25 @@ namespace DmcSocial.API
     /// <returns></returns>
     [HttpGet]
     [Route("search")]
-    public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? offset, int? limit, [FromQuery] string[] tags)
+    public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? offset, int? limit, [FromQuery] string[] tags, [FromQuery] string[] keywords)
     {
       var paging = new GetListParams<Post>(offset, limit);
-      var posts = await _repo.SearchPosts(tags.ToList(), paging);
+      var posts = await _repo.SearchPosts(tags.ToList(), keywords.ToList(), paging);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
+    }
+
+    /// <summary>
+    /// Count search result posts
+    /// </summary>
+    /// <param name="pageIndex"></param>
+    /// <param name="pageRows"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("search/count")]
+    public async Task<ActionResult<int>> CountSearchPosts([FromQuery] string[] tags, [FromQuery] string[] keywords)
+    {
+      var count = await _repo.CountSearchedPosts(tags.ToList(), keywords.ToList());
+      return Ok(count);
     }
 
 
@@ -154,7 +168,7 @@ namespace DmcSocial.API
       var post = await _repo.GetPostById(postId, false);
       if (post == null)
         return NotFound();
-      await _repo.AddTag(post, tag);
+      await _repo.AddTag(post, tag, _auth.GetUser());
       return Ok();
     }
 
@@ -171,7 +185,7 @@ namespace DmcSocial.API
       var post = await _repo.GetPostById(postId, false);
       if (post == null)
         return NotFound();
-      await _repo.RemoveTag(post, tag);
+      await _repo.RemoveTag(post, tag, _auth.GetUser());
       return Ok();
     }
   }
