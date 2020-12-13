@@ -19,7 +19,7 @@ namespace DmcSocial.Models
     [JsonPropertyName("orderDirection")]
     public OrderDirections OrderDirection { get; set; } = OrderDirections.ASC;
     [JsonPropertyName("at")]
-    public DateTime At { get; set; } = DateTime.Now;
+    public DateTimeOffset At { get; set; } = DateTimeOffset.Now;
     public GetListParams() { }
     public GetListParams(int? offset, int? limit)
     {

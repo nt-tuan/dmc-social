@@ -27,7 +27,7 @@ namespace DmcSocial
         Content = Content,
         Title = Title,
         CanComment = CanComment,
-        DateCreated = DateTime.Now,
+        DateCreated = DateTimeOffset.Now,
         Subtitle = Subtitle,
         CoverImageURL = CoverImageURL
       };

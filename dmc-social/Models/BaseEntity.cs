@@ -15,15 +15,15 @@ namespace DmcSocial.Models
     }
     public enum ListOrder { ASC = 1, DESC = 0 }
     public int Id { get; set; }
-    public DateTime DateCreated { get; set; }
+    public DateTimeOffset DateCreated { get; set; }
     public string CreatedBy { get; set; }
-    public DateTime? DateRemoved { get; set; }
+    public DateTimeOffset? DateRemoved { get; set; }
     public string RemovedBy { get; set; }
-    public DateTime LastModifiedTime { get; set; }
+    public DateTimeOffset LastModifiedTime { get; set; }
     public string LastModifiedBy { get; set; }
     public BaseEntity()
     {
-      var now = DateTime.Now;
+      var now = DateTimeOffset.Now;
       LastModifiedTime = now;
       DateCreated = now;
     }

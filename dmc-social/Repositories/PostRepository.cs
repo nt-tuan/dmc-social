@@ -92,7 +92,7 @@ namespace DmcSocial.Repositories
       .FirstOrDefaultAsync(post => post.Id == postId);
       if (entity == null)
         throw PostException.PostNotFound;
-      var now = DateTime.Now;
+      var now = DateTimeOffset.Now;
       // Ignore update posttags
       entity.Title = title;
       entity.Content = content;

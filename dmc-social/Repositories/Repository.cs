@@ -16,7 +16,7 @@ namespace DmcSocial.Repositories
     }
     public void Add<T>(T entity, string actor) where T : BaseEntity
     {
-      var now = DateTime.Now;
+      var now = DateTimeOffset.Now;
       entity.DateCreated = now;
       entity.LastModifiedTime = now;
       entity.CreatedBy = actor;
@@ -26,7 +26,7 @@ namespace DmcSocial.Repositories
 
     public void Delete<T>(T entity, string actor) where T : BaseEntity
     {
-      var now = DateTime.Now;
+      var now = DateTimeOffset.Now;
       entity.DateRemoved = now;
       entity.RemovedBy = actor;
       _db.Entry(entity).Property(u => new { u.DateRemoved, u.RemovedBy }).IsModified = true;
@@ -39,7 +39,7 @@ namespace DmcSocial.Repositories
 
     public void Update<T>(T entity, string actor) where T : BaseEntity
     {
-      var now = DateTime.Now;
+      var now = DateTimeOffset.Now;
       entity.LastModifiedTime = now;
       entity.LastModifiedBy = actor;
       _db.Entry(entity).Property(u => new { u.LastModifiedTime, u.LastModifiedBy }).IsModified = true;

@@ -87,7 +87,7 @@ namespace DmcSocial.Repositories
         var e = _dbContext.Tags.Find(tag.Value);
         if (e == null)
         {
-          tag.DateCreated = DateTime.Now;
+          tag.DateCreated = DateTimeOffset.Now;
           tag.CreatedBy = "system";
           _dbContext.Tags.Add(tag);
           _dbContext.SaveChanges();

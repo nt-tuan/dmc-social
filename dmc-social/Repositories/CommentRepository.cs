@@ -61,7 +61,7 @@ namespace DmcSocial.Repositories
         Content = content,
         PostId = postId,
         ParentPostCommentId = commentId,
-        DateCreated = DateTime.Now,
+        DateCreated = DateTimeOffset.Now,
         CreatedBy = by
       };
       _repo.Add(comment, by);

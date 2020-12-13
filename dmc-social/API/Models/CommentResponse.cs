@@ -12,9 +12,9 @@ namespace DmcSocial.API.Models
     public string Content { get; set; }
     public int? PostId { get; set; }
     public int? CommentId { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; }
-    public DateTime? LastModifiedAt { get; set; }
+    public DateTimeOffset? LastModifiedAt { get; set; }
     public CommentResponse(PostComment entity)
     {
       Id = entity.Id;

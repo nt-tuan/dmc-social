@@ -6,6 +6,6 @@ namespace DmcSocial.API.Models
   {
     public string Value { get; set; }
     public int PostCount { get; set; }
-    public DateTime? LastModifiedAt { get; set; }
+    public DateTimeOffset? LastModifiedAt { get; set; }
   }
 }
