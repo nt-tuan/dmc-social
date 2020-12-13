@@ -28,9 +28,11 @@ namespace DmcSocial.Repositories
     public async Task<List<Tag>> GetTags(string search)
     {
       var query = _repo.GetQuery<Tag>();
-      var normalizeValue = Helper.NormalizeTag(search);
       if (!string.IsNullOrEmpty(search))
+      {
+        var normalizeValue = Helper.NormalizeTag(search);
         query = query.Where(u => search == "" || u.NormalizeValue.Contains(normalizeValue));
+      }
       var tags = await query.ToListAsync();
       return tags;
     }
