@@ -180,8 +180,10 @@ namespace DmcSocial.Repositories
         Frequency = u.Sum(w => w.Frequency),
         MatchedWordCount = u.Count()
       }).
+      OrderByDescending(u => u.MatchedWordCount).
+      ThenByDescending(u => u.Frequency).
       Skip(param.Offset).Take(param.Limit).
-      OrderByDescending(u => new { u.MatchedWordCount, u.Frequency }).ToListAsync();
+      ToListAsync();
 
       var postIds = result.Select(u => u.PostId);
       var posts = await _db.Posts.Where(u => postIds.Contains(u.Id)).ToListAsync();
