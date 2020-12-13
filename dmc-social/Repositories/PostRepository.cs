@@ -182,8 +182,9 @@ namespace DmcSocial.Repositories
       Join(_db.Posts.
       Include(u => u.PostTags).
       Where(u =>
+        tagIds.Count == 0 ||
         u.PostTags.
-        Any(u => tagIds.Count == 0 || tagIds.Contains(u.TagId))),
+        Any(u => tagIds.Contains(u.TagId))),
           o => o.PostId,
           i => i.Id,
           (o, i) => new
@@ -210,7 +211,8 @@ namespace DmcSocial.Repositories
       Select(u => new { PostId = u.Key }).
       Join(_db.Posts.
         Where(u =>
-          u.PostTags.Any(u => tagIds.Count == 0 || tagIds.Contains(u.TagId))),
+          tagIds.Count == 0 ||
+          u.PostTags.Any(u => tagIds.Contains(u.TagId))),
           o => o.PostId,
           i => i.Id,
           (o, i) => new { Post = i }).
