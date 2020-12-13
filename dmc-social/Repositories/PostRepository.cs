@@ -169,8 +169,6 @@ namespace DmcSocial.Repositories
 
     public async Task<List<Post>> SearchPosts(List<string> tagIds, List<string> keywords, GetListParams<Post> param)
     {
-      tagIds.Sort();
-      var tagsLike = string.Join("%", tagIds.Select(tag => Helper.NormalizeTag(tag)));
       keywords = keywords.Select(w => Helper.NormalizeString(w)).ToList();
       var result = await _db.WordFrequencies.
       Where(w => keywords.Contains(w.Word)).
@@ -205,12 +203,19 @@ namespace DmcSocial.Repositories
 
     public async Task<int> CountSearchedPosts(List<string> tagIds, List<string> keywords)
     {
-      var tagsLike = string.Join("%", tagIds.Select(tag => Helper.NormalizeTag(tag)));
       keywords = keywords.Select(w => Helper.NormalizeString(w)).ToList();
-      var result = await _db.WordFrequencies.
+      var count = await _db.WordFrequencies.
       Where(w => keywords.Contains(w.Word)).
-      GroupBy(u => u.PostId).CountAsync();
-      return result;
+      GroupBy(u => u.PostId).
+      Select(u => new { PostId = u.Key }).
+      Join(_db.Posts.
+        Where(u =>
+          u.PostTags.Any(u => tagIds.Count == 0 || tagIds.Contains(u.TagId))),
+          o => o.PostId,
+          i => i.Id,
+          (o, i) => new { Post = i }).
+      CountAsync();
+      return count;
     }
 
     public async Task<int> IncreaseView(int postId)
