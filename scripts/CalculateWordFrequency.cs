@@ -34,7 +34,7 @@ namespace scripts
       var total = 0;
       do
       {
-        var startTime = DateTime.Now;
+        var startTime = DateTimeOffset.Now;
         var posts = GetRepository(optionsBuilder).GetPosts(new List<string>(), new DmcSocial.Models.PostListParams(offset, limit, null, null)).Result;
         var postIds = posts.Select(u => u.Id);
         var wordFreq = new List<WordFrequency>();
@@ -54,7 +54,7 @@ namespace scripts
           db.SaveChanges();
         }
         offset += posts.Count;
-        var elapse = DateTime.Now - startTime;
+        var elapse = DateTimeOffset.Now - startTime;
         ms += elapse.TotalMilliseconds;
         total += posts.Count;
         Console.WriteLine($"{elapse.TotalMilliseconds}ms | Calculate words of {posts.Count} post(s): {string.Join(",", posts.Select(u => $"#{u.Id}"))}");
