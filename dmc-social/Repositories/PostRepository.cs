@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using DmcSocial.Interfaces;
 using System.Collections.Immutable;
 using System.IO;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DmcSocial.Repositories
 {
@@ -180,16 +181,26 @@ namespace DmcSocial.Repositories
         Frequency = u.Sum(w => w.Frequency),
         MatchedWordCount = u.Count()
       }).
+      Join(_db.Posts.
+      Include(u => u.PostTags).
+      Where(u =>
+        u.PostTags.
+        Any(u => tagIds.Count == 0 || tagIds.Contains(u.TagId))),
+          o => o.PostId,
+          i => i.Id,
+          (o, i) => new
+          {
+            Post = i,
+            o.MatchedWordCount,
+            o.Frequency
+          }).
       OrderByDescending(u => u.MatchedWordCount).
       ThenByDescending(u => u.Frequency).
       Skip(param.Offset).Take(param.Limit).
       ToListAsync();
 
-      var postIds = result.Select(u => u.PostId);
-      var posts = await _db.Posts.Where(u => postIds.Contains(u.Id)).ToListAsync();
-      var postDict = posts.ToDictionary(u => u.Id);
-      var postsResult = result.Select(u => postDict.ContainsKey(u.PostId) ? postDict[u.PostId] : null).Where(u => u != null);
-      return postsResult.ToList();
+      var posts = result.Select(u => u.Post).ToList();
+      return posts;
     }
 
     public async Task<int> CountSearchedPosts(List<string> tagIds, List<string> keywords)
