@@ -40,7 +40,7 @@ namespace scripts
         var wordFreq = new List<WordFrequency>();
         foreach (var post in posts)
         {
-          var postWordFreq = GetRepository(optionsBuilder).GetWordFrequencies(post).Result;
+          var postWordFreq = GetRepository(optionsBuilder).GetWordFrequencies(post);
           wordFreq.AddRange(postWordFreq);
         }
         using (var db = new AppDbContext(optionsBuilder.Options))

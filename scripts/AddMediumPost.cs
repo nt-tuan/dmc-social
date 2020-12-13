@@ -9,6 +9,7 @@ using System.IO;
 using CsvHelper;
 using System.Globalization;
 using System.Linq;
+using DmcSocial.Models;
 
 namespace scripts
 {
@@ -57,7 +58,7 @@ namespace scripts
       if (db.Tags.Any(tag => tag.NormalizeValue == "medium"))
         return;
       var tagRepo = new TagRepository(new AppDbContext(optionsBuilder.Options));
-      var mediumTag = tagRepo.AddTag(new DmcSocial.Models.Tag("medium")).Result;
+      var mediumTag = tagRepo.AddTag(new Tag("medium", "admin"), "admin").Result;
     }
     private void AddPost(MediumArticle record, DbContextOptionsBuilder<AppDbContext> optionsBuilder)
     {
@@ -80,7 +81,7 @@ namespace scripts
         Content = record.text,
         Subtitle = subtitle,
       }, Helper.NormalizeString(record.author)).Result;
-      repo.AddTag(post, "medium").Wait();
+      repo.AddTag(post, "medium", "admin").Wait();
       Console.WriteLine($"Create post#{post.Id}, {post.Title} successfull");
     }
   }

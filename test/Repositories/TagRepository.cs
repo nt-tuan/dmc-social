@@ -5,13 +5,13 @@ using DmcSocial.Models;
 
 namespace test.Repositories
 {
-    public class TagRepository
+  public class TagRepository
+  {
+    [Fact]
+    public void New()
     {
-        [Fact]
-        public void New()
-        {
-            var tag = new Tag("Chuỗi");
-            Assert.Equal("chuoi", tag.NormalizeValue);
-        }
+      var tag = new Tag("Chuỗi", "admin");
+      Assert.Equal("chuoi", tag.NormalizeValue);
     }
+  }
 }
