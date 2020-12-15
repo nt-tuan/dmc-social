@@ -80,11 +80,7 @@ namespace DmcSocial.Repositories
     {
       var comment = await GetPostCommentById(id);
       comment.Content = content;
-      _db.Attach(comment).Property(comment => new
-      {
-        comment.Content
-      })
-      .IsModified = true;
+      _db.Attach(comment).Property(comment => comment.Content).IsModified = true;
       _repo.Update(comment, by);
       await _db.SaveChangesAsync();
       return comment;

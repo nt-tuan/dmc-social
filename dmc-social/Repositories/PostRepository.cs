@@ -235,12 +235,10 @@ namespace DmcSocial.Repositories
       entity.PostAccessUsers = accessUsers;
       entity.PostRestrictionType = postRestrictionType;
       entity.CanComment = canComment;
-      _db.Posts.Attach(entity).Property(post => new
-      {
-        post.PostAccessUsers,
-        post.PostRestrictionType,
-        post.CanComment
-      }).IsModified = true;
+      _db.Entry(entity).Property(post => post.PostAccessUsers).IsModified = true;
+      _db.Entry(entity).Property(post => post.PostRestrictionType).IsModified = true;
+      _db.Entry(entity).Property(post => post.CanComment).IsModified = true;
+
       _repo.Update(entity, entity.CreatedBy);
       await _db.SaveChangesAsync();
       return entity;
