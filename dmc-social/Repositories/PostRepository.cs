@@ -182,7 +182,7 @@ namespace DmcSocial.Repositories
       Join(_db.Posts.
       Include(u => u.PostTags).
       Where(u =>
-        tagIds.Count == 0 ||
+        tagIds == null || tagIds.Count == 0 ||
         u.PostTags.
         Any(u => tagIds.Contains(u.TagId))),
           o => o.PostId,

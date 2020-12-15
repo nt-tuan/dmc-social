@@ -32,10 +32,10 @@ namespace DmcSocial.API
     /// <param name="limit"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<List<PostResponse>>> GetPosts(int? offset, int? limit, string by, int? dir, [FromQuery] string[] tags)
+    public async Task<ActionResult<List<PostResponse>>> GetPosts([FromQuery] GetPostQuery query)
     {
-      var paging = new PostListParams(offset, limit, by, dir);
-      var posts = await _repo.GetPosts(tags.ToList(), paging);
+      var paging = new PostListParams(query.Offset, query.Limit, query.By, query.Dir);
+      var posts = await _repo.GetPosts(query.Tags?.ToList(), paging);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
 
@@ -65,10 +65,10 @@ namespace DmcSocial.API
     /// <returns></returns>
     [HttpGet]
     [Route("search")]
-    public async Task<ActionResult<List<PostResponse>>> SearchPosts(int? offset, int? limit, [FromQuery] string[] tags, [FromQuery] string[] keywords)
+    public async Task<ActionResult<List<PostResponse>>> SearchPosts([FromQuery] SearchPostQuery query)
     {
-      var paging = new GetListParams<Post>(offset, limit);
-      var posts = await _repo.SearchPosts(tags.ToList(), keywords.ToList(), paging);
+      var paging = new PostListParams(query.Offset, query.Limit, query.By, query.Dir);
+      var posts = await _repo.SearchPosts(query.Tags?.ToList(), query.Keywords.ToList(), paging);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
 
