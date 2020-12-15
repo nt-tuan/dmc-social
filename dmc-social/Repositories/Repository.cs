@@ -29,7 +29,7 @@ namespace DmcSocial.Repositories
       var now = DateTimeOffset.Now;
       entity.DateRemoved = now;
       entity.RemovedBy = actor;
-      _db.Entry(entity).Property(u => new { u.DateRemoved, u.RemovedBy }).IsModified = true;
+      _db.Attach(entity).Property(u => new { u.DateRemoved, u.RemovedBy }).IsModified = true;
     }
 
     public IQueryable<T> GetQuery<T>() where T : BaseEntity
@@ -42,7 +42,7 @@ namespace DmcSocial.Repositories
       var now = DateTimeOffset.Now;
       entity.LastModifiedTime = now;
       entity.LastModifiedBy = actor;
-      _db.Entry(entity).Property(u => new { u.LastModifiedTime, u.LastModifiedBy }).IsModified = true;
+      _db.Attach(entity).Property(u => new { u.LastModifiedTime, u.LastModifiedBy }).IsModified = true;
     }
   }
 }
