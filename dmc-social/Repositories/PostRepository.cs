@@ -60,8 +60,8 @@ namespace DmcSocial.Repositories
     private IQueryable<Post> GetPostsByTagsQuery(List<string> tags)
     {
       var query = GetPostQuery();
-      var tagsCount = tags.Count();
-      if (tags.Count > 0)
+      var tagsCount = tags?.Count();
+      if (tagsCount != null && tagsCount > 0)
       {
         query = query
         .Where(u => u.DateRemoved == null)
