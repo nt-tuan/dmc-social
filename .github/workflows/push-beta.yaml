@@ -19,6 +19,6 @@ jobs:
         run: echo ${{ secrets.CR_PAT }} | docker login $DOCKER_REPOSITORY -u $GITHUB_ACTOR --password-stdin
       - uses: FranzDiebold/github-env-vars-action@v2
       # Build the Docker image
-        run: |
-        docker build -t $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$IMAGE:beta ./dmc-social
-        docker push $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$IMAGE:beta
+      - run: |
+          docker build -t $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$IMAGE:beta ./dmc-social
+          docker push $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$IMAGE:beta
