@@ -72,8 +72,9 @@ namespace DmcSocial.Models
     }
     void SetFilters(List<string> filterBy, List<string> filterValue)
     {
-      var numFilter = new int[] { filterBy.Count, filterValue.Count }.Min();
       Filters = new List<Expression<Func<Post, bool>>>();
+      if (filterBy == null || filterValue == null) return;
+      var numFilter = new int[] { filterBy.Count, filterValue.Count }.Min();
       for (var index = 0; index < numFilter; index++)
       {
         if (filterBy[index] == nameof(Post.CreatedBy))
