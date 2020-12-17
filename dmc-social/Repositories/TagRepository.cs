@@ -27,7 +27,7 @@ namespace DmcSocial.Repositories
 
     public async Task<List<Tag>> GetTags()
     {
-      var tags = await _repo.GetQuery<Tag>().ToListAsync();
+      var tags = await _repo.GetQuery<Tag>().OrderByDescending(u => u.Popularity).ToListAsync();
       return tags;
     }
   }
