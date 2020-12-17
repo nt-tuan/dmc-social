@@ -94,9 +94,9 @@ namespace DmcSocial.Repositories
         }
       }
 
-      CorrectPosts();
-      CorrectComments();
-      CorrectTags();
+      // CorrectPosts();
+      // CorrectComments();
+      // CorrectTags();
     }
   }
 }
