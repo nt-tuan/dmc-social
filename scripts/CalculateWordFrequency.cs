@@ -35,7 +35,13 @@ namespace scripts
       do
       {
         var startTime = DateTimeOffset.Now;
-        var posts = GetRepository(optionsBuilder).GetPosts(new List<string>(), new DmcSocial.Models.PostListParams(offset, limit, null, null)).Result;
+        var posts = GetRepository(optionsBuilder).
+        GetPosts(new List<string>(),
+        new DmcSocial.Models.PostListParams(new DmcSocial.GetPostQuery
+        {
+          Offset = offset,
+          Limit = limit
+        })).Result;
         var postIds = posts.Select(u => u.Id);
         var wordFreq = new List<WordFrequency>();
         foreach (var post in posts)

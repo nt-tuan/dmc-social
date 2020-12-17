@@ -25,15 +25,9 @@ namespace DmcSocial.Repositories
       return tag;
     }
 
-    public async Task<List<Tag>> GetTags(string search)
+    public async Task<List<Tag>> GetTags()
     {
-      var query = _repo.GetQuery<Tag>();
-      if (!string.IsNullOrEmpty(search))
-      {
-        var normalizeValue = Helper.NormalizeTag(search);
-        query = query.Where(u => search == "" || u.Slug.Contains(normalizeValue));
-      }
-      var tags = await query.ToListAsync();
+      var tags = await _repo.GetQuery<Tag>().ToListAsync();
       return tags;
     }
   }

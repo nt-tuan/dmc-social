@@ -16,6 +16,7 @@ namespace DmcSocial.Models
     public int Limit { get; set; } = 30;
     [JsonPropertyName("orderBy")]
     public Expression<Func<T, object>> OrderBy { get; set; } = null;
+    public List<Expression<Func<T, bool>>> Filters { get; set; } = null;
     [JsonPropertyName("orderDirection")]
     public OrderDirections OrderDirection { get; set; } = OrderDirections.ASC;
     [JsonPropertyName("at")]
@@ -39,9 +40,14 @@ namespace DmcSocial.Models
   public class PostListParams : GetListParams<Post>
   {
     public PostListParams() { }
-    public PostListParams(int? offset, int? limit, string orderBy, int? orderDir) : base(offset, limit)
+    public PostListParams(GetPostQuery query) : base(query.Offset, query.Limit)
     {
-      this.OrderBy = post => post.Id;
+      SetOrder(query.By, query.Dir);
+      SetFilters(query.FilterBy?.ToList(), query.FilterValue?.ToList());
+    }
+    void SetOrder(string orderBy, int? orderDir)
+    {
+      this.OrderBy = post => post.Popularity;
       this.OrderDirection = OrderDirections.DESC;
       if (orderDir != null)
       {
@@ -64,6 +70,19 @@ namespace DmcSocial.Models
         this.OrderBy = post => post.CommentCount;
       }
     }
+    void SetFilters(List<string> filterBy, List<string> filterValue)
+    {
+      var numFilter = new int[] { filterBy.Count, filterValue.Count }.Min();
+      Filters = new List<Expression<Func<Post, bool>>>();
+      for (var index = 0; index < numFilter; index++)
+      {
+        if (filterBy[index] == nameof(Post.CreatedBy))
+        {
+          Filters.Add(post => post.CreatedBy.ToLower().Contains(filterValue[index].ToLower()));
+          continue;
+        }
+      }
+    }
   }
 
   public class CommentListParams : GetListParams<PostComment>
@@ -73,6 +92,14 @@ namespace DmcSocial.Models
     {
       OrderBy = comment => comment.Id;
       OrderDirection = OrderDirections.DESC;
+    }
+  }
+
+  public class TagListParams : GetListParams<Tag>
+  {
+    public TagListParams()
+    {
+
     }
   }
 }

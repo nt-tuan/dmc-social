@@ -34,7 +34,7 @@ namespace DmcSocial.API
     [HttpGet]
     public async Task<ActionResult<List<PostResponse>>> GetPosts([FromQuery] GetPostQuery query)
     {
-      var paging = new PostListParams(query.Offset, query.Limit, query.By, query.Dir);
+      var paging = new PostListParams(query);
       var posts = await _repo.GetPosts(query.Tags?.ToList(), paging);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
@@ -67,7 +67,7 @@ namespace DmcSocial.API
     [Route("search")]
     public async Task<ActionResult<List<PostResponse>>> SearchPosts([FromQuery] SearchPostQuery query)
     {
-      var paging = new PostListParams(query.Offset, query.Limit, query.By, query.Dir);
+      var paging = new PostListParams(query);
       var posts = await _repo.SearchPosts(query.Tags?.ToList(), query.Keywords.ToList(), paging);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }

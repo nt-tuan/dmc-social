@@ -27,7 +27,7 @@ namespace DmcSocial.Repositories
     public async Task<List<PostComment>> GetSubPostComments(int commentId, GetListParams<PostComment> paging)
     {
       var query = GetQuery().Where(u => u.ParentPostCommentId == commentId);
-      query = Helper.ApplyPaging(query, paging);
+      query = Helper.ApplyListParam(query, paging);
       var posts = await query.ToListAsync();
       return posts;
     }
@@ -42,7 +42,7 @@ namespace DmcSocial.Repositories
     public async Task<List<PostComment>> GetPostComments(int postId, GetListParams<PostComment> paging)
     {
       var query = GetQuery().Where(u => u.PostId == postId && u.ParentPostCommentId == null);
-      query = Helper.ApplyPaging(query, paging);
+      query = Helper.ApplyListParam(query, paging);
       var comments = await query.ToListAsync();
       return comments;
     }

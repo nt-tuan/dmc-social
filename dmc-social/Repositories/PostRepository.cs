@@ -73,7 +73,7 @@ namespace DmcSocial.Repositories
     public async Task<List<Post>> GetPosts(List<string> tags, GetListParams<Post> paging)
     {
       var query = GetPostsByTagsQuery(tags);
-      query = Helper.ApplyPaging(query, paging);
+      query = Helper.ApplyListParam(query, paging);
       var posts = await query.ToListAsync();
       return posts;
     }

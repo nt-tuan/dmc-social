@@ -83,22 +83,14 @@ namespace DmcSocial
     public int? Limit { get; set; }
     [FromQuery]
     public string[] Tags { get; set; }
+    [FromQuery]
+    public string[] FilterBy { get; set; }
+    [FromQuery]
+    public string[] FilterValue { get; set; }
   }
 
-  public class SearchPostQuery
+  public class SearchPostQuery : GetPostQuery
   {
-    [FromQuery]
-    public string By { get; set; }
-    [FromQuery]
-    public int? Dir { get; set; }
-    [FromQuery]
-    public int? Offset { get; set; }
-    [FromQuery]
-    public int? Limit { get; set; }
-    [FromQuery]
-    public string[] Tags { get; set; }
-    [FromQuery]
-    public string Search { get; set; }
     [FromQuery]
     public string[] Keywords { get; set; }
   }

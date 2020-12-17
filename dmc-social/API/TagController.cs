@@ -29,9 +29,9 @@ namespace DmcSocial.API
     /// <returns></returns>
     [HttpGet]
     [Route("")]
-    public async Task<ActionResult<List<Tag>>> Get(string search)
+    public async Task<ActionResult<List<Tag>>> Get()
     {
-      var entities = await _repo.GetTags(search);
+      var entities = await _repo.GetTags();
       return Ok(entities.Select(u => new Models.Tag(u)).ToList());
     }
 

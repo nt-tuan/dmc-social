@@ -104,7 +104,7 @@ namespace DmcSocial
     private void Save(List<TagCoefficient> correllationCos)
     {
       var db = new AppDbContext(_dbOptions.Options);
-      db.Remove(db.TagCorrelationCoefficients);
+      db.RemoveRange(db.TagCorrelationCoefficients.AsQueryable());
       db.AddRange(correllationCos.Select(u => new TagCorrelationCoefficient
       {
         TagX = u.Tag1,

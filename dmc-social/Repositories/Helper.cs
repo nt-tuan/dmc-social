@@ -8,7 +8,7 @@ namespace DmcSocial.Repositories
 {
   public static class Helper
   {
-    public static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, GetListParams<T> pagingParam)
+    static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, GetListParams<T> pagingParam)
     {
       var chain = query;
       if (pagingParam.OrderBy != null)
@@ -26,6 +26,21 @@ namespace DmcSocial.Repositories
       return chain;
     }
 
+    static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, GetListParams<T> listParams)
+    {
+      if (listParams == null || listParams.Filters == null) return query;
+      foreach (var filter in listParams.Filters)
+      {
+        query = query.Where(filter);
+      }
+      return query;
+    }
+    public static IQueryable<T> ApplyListParam<T>(IQueryable<T> query, GetListParams<T> listParams)
+    {
+      query = ApplyPaging(query, listParams);
+      query = ApplyFilters(query, listParams);
+      return query;
+    }
     public static string NormalizeString(string str)
     {
       if (string.IsNullOrEmpty(str))

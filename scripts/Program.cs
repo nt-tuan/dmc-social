@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using DmcSocial;
+using Microsoft.VisualBasic;
 using System;
 using System.Linq;
 
@@ -17,6 +18,12 @@ namespace scripts
           return;
         case "add-posts":
           new AddMediumPost().Run(methodArgs);
+          return;
+        case "calc-tag-correlation":
+          new CalculateCorellcationCoefficient(methodArgs).Run();
+          return;
+        case "calc-tag-popularity":
+          new CalculateTagPopularity(methodArgs[0]).Run();
           return;
       }
     }

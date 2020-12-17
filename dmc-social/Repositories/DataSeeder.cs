@@ -93,10 +93,6 @@ namespace DmcSocial.Repositories
           _dbContext.SaveChanges();
         }
       }
-
-      // CorrectPosts();
-      // CorrectComments();
-      // CorrectTags();
     }
   }
 }
