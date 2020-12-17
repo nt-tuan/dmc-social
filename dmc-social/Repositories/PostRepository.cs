@@ -128,7 +128,7 @@ namespace DmcSocial.Repositories
 
     private async Task<Tag> GetTag(string tag)
     {
-      var entity = await _repo.GetQuery<Tag>().FirstOrDefaultAsync(e => e.NormalizeValue == tag);
+      var entity = await _repo.GetQuery<Tag>().FirstOrDefaultAsync(e => e.Slug == tag);
       return entity;
     }
     private void SetTagModifiedTime(Post post, Tag tag)

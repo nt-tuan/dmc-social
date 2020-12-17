@@ -11,7 +11,7 @@ namespace test.Repositories
     public void New()
     {
       var tag = new Tag("Chuỗi", "admin");
-      Assert.Equal("chuoi", tag.NormalizeValue);
+      Assert.Equal("chuoi", tag.Slug);
     }
   }
 }

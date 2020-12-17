@@ -10,7 +10,7 @@ namespace DmcSocial.API.Models
     public DateTimeOffset LastModifiedAt { get; set; }
     public Tag(DmcSocial.Models.Tag tag)
     {
-      Value = tag.NormalizeValue;
+      Value = tag.Slug;
       Label = tag.Value;
       PostCount = tag.PostCount;
       LastModifiedAt = tag.LastModifiedTime;

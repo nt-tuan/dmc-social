@@ -14,13 +14,14 @@ namespace DmcSocial.Repositories
     public DbSet<PostTag> PostTags { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<WordFrequency> WordFrequencies { get; set; }
+    public DbSet<TagCorrelationCoefficient> TagCorrelationCoefficients { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
       base.OnModelCreating(builder);
       // Post
       Post.OnModelCreating<Post>(builder);
-      builder.Entity<Post>().HasIndex(u => u.LookupValue);
+      builder.Entity<Post>().HasIndex(u => u.Popularity);
 
       // PostComment
       Post.OnModelCreating<PostComment>(builder);
@@ -30,7 +31,8 @@ namespace DmcSocial.Repositories
       // Tag
       Tag.OnModelCreating<Tag>(builder);
       builder.Entity<Tag>().Ignore(u => u.Id);
-      builder.Entity<Tag>().HasKey(u => u.NormalizeValue);
+      builder.Entity<Tag>().HasKey(u => u.Slug);
+      builder.Entity<Tag>().HasIndex(u => u.Popularity);
 
       // PostTag
       PostTag.OnModelCreating<PostTag>(builder);
@@ -40,7 +42,10 @@ namespace DmcSocial.Repositories
 
       // WordFrequency
       builder.Entity<WordFrequency>().HasKey(u => new { u.Word, u.PostId });
-    }
 
+      // TagCorrelationCoefficient
+      builder.Entity<TagCorrelationCoefficient>().HasKey(u => new { u.TagX, u.TagY });
+      builder.Entity<TagCorrelationCoefficient>().Property(u => u.Coefficient).HasColumnType("decimal(16,2)");
+    }
   }
 }

@@ -55,7 +55,7 @@ namespace scripts
     private void AddTags(DbContextOptionsBuilder<AppDbContext> optionsBuilder)
     {
       var db = new AppDbContext(optionsBuilder.Options);
-      if (db.Tags.Any(tag => tag.NormalizeValue == "medium"))
+      if (db.Tags.Any(tag => tag.Slug == "medium"))
         return;
       var tagRepo = new TagRepository(new AppDbContext(optionsBuilder.Options));
       var mediumTag = tagRepo.AddTag(new Tag("medium", "admin"), "admin").Result;

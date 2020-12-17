@@ -31,7 +31,7 @@ namespace DmcSocial.Repositories
       if (!string.IsNullOrEmpty(search))
       {
         var normalizeValue = Helper.NormalizeTag(search);
-        query = query.Where(u => search == "" || u.NormalizeValue.Contains(normalizeValue));
+        query = query.Where(u => search == "" || u.Slug.Contains(normalizeValue));
       }
       var tags = await query.ToListAsync();
       return tags;

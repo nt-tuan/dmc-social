@@ -8,15 +8,16 @@ namespace DmcSocial.Models
     public string Value { get; set; }
     public string Reference { get; set; }
     public int PostCount { get; set; }
-    public string NormalizeValue { get; set; }
+    public decimal Popularity { get; set; }
+    public string Slug { get; set; }
     public Tag() : base() { }
     public Tag(string tag, string actor) : base(actor)
     {
       Value = tag;
-      NormalizeValue = "";
+      Slug = "";
       if (string.IsNullOrEmpty(tag))
         return;
-      NormalizeValue = Repositories.Helper.NormalizeTag(tag);
+      Slug = Repositories.Helper.NormalizeTag(tag);
     }
   }
 }

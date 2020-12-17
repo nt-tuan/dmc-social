@@ -15,10 +15,10 @@ namespace DmcSocial.Models
     #region config
     public int PostRestrictionType { get; set; }
     public string[] PostAccessUsers { get; set; }
+    public decimal Popularity { get; set; }
     #endregion
 
     #region metric
-    public string LookupValue { get; set; }
     public int ViewCount { get; set; }
     public int CommentCount { get; set; }
     #endregion
