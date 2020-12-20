@@ -54,11 +54,11 @@ namespace DmcSocial
     List<TagCoefficient> GetTagCorrelationCoefficients()
     {
       return new AppDbContext(_dbOptions.Options).TagCorrelationCoefficients.
-      GroupBy(u => u.TagX).
+      GroupBy(u => u.TagY).
       Select(u => new TagCoefficient
       {
         Tag = u.Key,
-        Popularity = (1 - u.Average(v => v.Coefficient)) * u.Count() * 10
+        Popularity = u.Average(v => v.Coefficient) * u.Count() * 10
       }).ToList();
     }
     List<PostTag> GetPostTags()
