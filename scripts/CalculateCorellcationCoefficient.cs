@@ -115,7 +115,6 @@ namespace DmcSocial
     }
     public void Run()
     {
-      var pair1 = new PairTag { Tag1 = "a", Tag2 = "b" };
       var tags = GetTags();
       var tagDictionary = tags.ToDictionary(u => u.Slug);
       var postTags = GetPostTags().OrderBy(u => u.PostId).ToList();

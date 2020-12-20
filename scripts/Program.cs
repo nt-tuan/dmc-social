@@ -14,7 +14,7 @@ namespace scripts
       switch (method)
       {
         case "calc-words":
-          new WordFrequencyCalculator().Run(methodArgs);
+          new WordFrequencyCalculator().Run();
           return;
         case "add-posts":
           new AddMediumPost().Run(methodArgs);

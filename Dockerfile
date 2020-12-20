@@ -5,9 +5,9 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
-COPY ["dmc-social.csproj", "./"]
+COPY ["./dmc-social/dmc-social.csproj", "./"]
 RUN dotnet restore "./dmc-social.csproj"
-COPY . .
+COPY ./dmc-social/. .
 WORKDIR "/src/."
 RUN dotnet build "dmc-social.csproj" -c Release -o /app/build
 

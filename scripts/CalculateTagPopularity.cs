@@ -29,9 +29,9 @@ namespace DmcSocial
       var orderedPosts = posts.Select(post => new
       {
         Post = post,
-        Popularity = post.CommentCount * 4 + post.ViewCount,
+        InteractiveScore = post.CommentCount * 4 + post.ViewCount,
         Rank = 0.0
-      }).OrderByDescending(post => post.Popularity).ToList();
+      }).OrderByDescending(post => post.InteractiveScore).ToList();
       var newPosts = new List<Post>();
       for (var i = 0; i < orderedPosts.Count; i++)
       {
