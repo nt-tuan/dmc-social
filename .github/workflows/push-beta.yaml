@@ -23,5 +23,5 @@ jobs:
       - run: |
           docker build -t $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$IMAGE:beta .
           docker push $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$IMAGE:beta
-          docker build -t $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$JOB_IMAGE:beta . -f job.Dockerfile
+          docker build -t $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$JOB_IMAGE:beta . -f worker.Dockerfile
           docker push $DOCKER_REPOSITORY/$CI_REPOSITORY_OWNER/$JOB_IMAGE:beta
