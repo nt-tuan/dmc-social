@@ -24,7 +24,7 @@ namespace ThanhTuan.Blogs.Repositories
       return _repo.GetQuery<PostComment>();
     }
 
-    public async Task<List<PostComment>> GetSubPostComments(int commentId, GetListParams<PostComment> paging)
+    public async Task<List<PostComment>> GetSubPostComments(int commentId, ListParameter<PostComment> paging)
     {
       var query = GetQuery().Where(u => u.ParentPostCommentId == commentId);
       query = Helper.ApplyListParam(query, paging);
@@ -39,7 +39,7 @@ namespace ThanhTuan.Blogs.Repositories
       return count;
     }
 
-    public async Task<List<PostComment>> GetPostComments(int postId, GetListParams<PostComment> paging)
+    public async Task<List<PostComment>> GetPostComments(int postId, ListParameter<PostComment> paging)
     {
       var query = GetQuery().Where(u => u.PostId == postId && u.ParentPostCommentId == null);
       query = Helper.ApplyListParam(query, paging);

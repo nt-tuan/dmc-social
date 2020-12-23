@@ -8,9 +8,9 @@ namespace ThanhTuan.Blogs.Interfaces
   public interface IPostRepository
   {
     Task<Post> CreatePost(Post post, string actor);
-    Task<List<Post>> GetPosts(List<string> tags, GetListParams<Post> param);
-    Task<int> CountPosts(List<string> tags);
-    Task<List<Post>> SearchPosts(List<string> tagIds, List<string> keywords, GetListParams<Post> paging);
+    Task<List<Post>> GetPosts(PostListParameter parameter);
+    Task<int> CountPosts(PostCountParameter parameter);
+    Task<List<Post>> SearchPosts(List<string> tagIds, List<string> keywords, int offset, int limit);
     Task<int> CountSearchedPosts(List<string> tagIds, List<string> keywords);
     Task<Post> GetPostById(int id, bool load = true);
     Task<PostMetric> GetPostMetricById(int id);

@@ -34,16 +34,16 @@ namespace ThanhTuan.Blogs.API
     [HttpGet]
     public async Task<ActionResult<List<PostResponse>>> GetPosts([FromQuery] GetPostQuery query)
     {
-      var paging = new PostListParams(query);
-      var posts = await _repo.GetPosts(query.Tags?.ToList(), paging);
+      var parameter = query.ToParameter();
+      var posts = await _repo.GetPosts(parameter);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
 
     [HttpGet]
     [Route("count")]
-    public async Task<ActionResult<int>> CountPosts([FromQuery] string[] tags)
+    public async Task<ActionResult<int>> CountPosts([FromQuery] PostFilterQuery query)
     {
-      var total = await _repo.CountPosts(tags.ToList());
+      var total = await _repo.CountPosts(query.ToParameter());
       return total;
     }
 
@@ -67,8 +67,7 @@ namespace ThanhTuan.Blogs.API
     [Route("search")]
     public async Task<ActionResult<List<PostResponse>>> SearchPosts([FromQuery] SearchPostQuery query)
     {
-      var paging = new PostListParams(query);
-      var posts = await _repo.SearchPosts(query.Tags?.ToList(), query.Keywords.ToList(), paging);
+      var posts = await _repo.SearchPosts(query.Tags?.ToList(), query.Keywords?.ToList(), query.Offset, query.Limit);
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
 
@@ -101,6 +100,25 @@ namespace ThanhTuan.Blogs.API
         return NotFound("not-found");
       }
       return Ok(new PostResponse(post));
+    }
+
+    [HttpGet("me")]
+    public async Task<ActionResult<List<PostResponse>>> GetMyPost([FromQuery] GetPostQuery query)
+    {
+      var user = _auth.GetUser();
+      if (string.IsNullOrEmpty(user)) return Unauthorized();
+      var getParams = query.ToParameter();
+      getParams.Filter.FilterQueries.Add(post => post.CreatedBy == user);
+      var posts = await _repo.GetPosts(getParams);
+      return posts.Select(post => new PostResponse(post)).ToList();
+    }
+
+    [HttpPost("me/count")]
+    public async Task<ActionResult<int>> GetMyPostCount([FromQuery] PostFilterQuery query)
+    {
+      var parameter = query.ToParameter();
+      parameter.Filter.FilterQueries.Add(post => post.CreatedBy == _auth.GetUser());
+      return await _repo.CountPosts(parameter);
     }
 
     [HttpGet("{id}/increaseView")]

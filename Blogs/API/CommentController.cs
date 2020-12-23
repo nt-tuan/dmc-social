@@ -27,7 +27,12 @@ namespace ThanhTuan.Blogs.API
     [Route("post/{postId}")]
     public async Task<ActionResult<List<CommentResponse>>> GetPostComments(int postId, int offset, int limit)
     {
-      var comments = await _repo.GetPostComments(postId, new CommentListParams(offset, limit));
+      var parameter = new CommentListParameter
+      {
+        Offset = offset,
+        Limit = limit
+      };
+      var comments = await _repo.GetPostComments(postId, parameter);
       return comments.Select(u => new CommentResponse(u)).ToList();
     }
 
@@ -43,7 +48,12 @@ namespace ThanhTuan.Blogs.API
     [Route("{commentId}/comments")]
     public async Task<ActionResult<List<CommentResponse>>> GetSubPostComments(int commentId, int offset, int limit)
     {
-      var comments = await _repo.GetSubPostComments(commentId, new CommentListParams(offset, limit));
+      var parameter = new CommentListParameter
+      {
+        Offset = offset,
+        Limit = limit
+      };
+      var comments = await _repo.GetSubPostComments(commentId, parameter);
       return comments.Select(u => new CommentResponse(u)).ToList();
     }
 

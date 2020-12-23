@@ -8,12 +8,12 @@ namespace ThanhTuan.Blogs.Repositories
 {
   public static class Helper
   {
-    static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, GetListParams<T> pagingParam)
+    static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, ListParameter<T> pagingParam)
     {
       var chain = query;
       if (pagingParam.OrderBy != null)
       {
-        if (pagingParam.OrderDirection == GetListParams<T>.OrderDirections.ASC)
+        if (pagingParam.OrderDirection == ListParameter<T>.OrderDirections.ASC)
         {
           chain = chain.OrderBy(pagingParam.OrderBy);
         }
@@ -26,19 +26,19 @@ namespace ThanhTuan.Blogs.Repositories
       return chain;
     }
 
-    static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, GetListParams<T> listParams)
+    public static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, Filterable<T> listParams)
     {
-      if (listParams == null || listParams.Filters == null) return query;
-      foreach (var filter in listParams.Filters)
+      if (listParams == null || listParams.FilterQueries == null) return query;
+      foreach (var filter in listParams.FilterQueries)
       {
         query = query.Where(filter);
       }
       return query;
     }
-    public static IQueryable<T> ApplyListParam<T>(IQueryable<T> query, GetListParams<T> listParams)
+    public static IQueryable<T> ApplyListParam<T>(IQueryable<T> query, ListParameter<T> parameter)
     {
-      query = ApplyPaging(query, listParams);
-      query = ApplyFilters(query, listParams);
+      query = ApplyPaging(query, parameter);
+      query = ApplyFilters(query, parameter.Filter);
       return query;
     }
     public static string NormalizeString(string str)

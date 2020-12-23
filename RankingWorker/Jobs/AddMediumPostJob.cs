@@ -116,7 +116,7 @@ namespace ThanhTuan.Blogs.RankingWorker.Jobs
       var lines = record.text.Split("\n", 4);
       var subtitle = $"Reference: {record.url}\n{record.subTitle}";
       var text = $"Reference: ${record.url}\n${record.text}";
-      var post = repo.CreatePost(new Blogs.Entities.Post
+      var post = repo.CreatePost(new ThanhTuan.Blogs.Entities.Post
       {
         Title = record.title,
         Content = record.text,

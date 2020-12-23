@@ -14,6 +14,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore.Query;
 using PostgreSQLCopyHelper;
 using Npgsql;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace ThanhTuan.Blogs.Repositories
 {
@@ -70,17 +71,18 @@ namespace ThanhTuan.Blogs.Repositories
       return query;
     }
 
-    public async Task<List<Post>> GetPosts(List<string> tags, GetListParams<Post> paging)
+    public async Task<List<Post>> GetPosts(PostListParameter parameter)
     {
-      var query = GetPostsByTagsQuery(tags);
-      query = Helper.ApplyListParam(query, paging);
+      var query = GetPostsByTagsQuery(parameter.Tags);
+      query = Helper.ApplyListParam(query, parameter);
       var posts = await query.ToListAsync();
       return posts;
     }
 
-    public async Task<int> CountPosts(List<string> tags)
+    public async Task<int> CountPosts(PostCountParameter parameter)
     {
-      var query = GetPostsByTagsQuery(tags);
+      var query = GetPostsByTagsQuery(parameter.Tags);
+      query = Helper.ApplyFilters(query, parameter.Filter);
       var count = await query.CountAsync();
       return count;
     }
@@ -131,12 +133,6 @@ namespace ThanhTuan.Blogs.Repositories
       var entity = await _repo.GetQuery<Tag>().FirstOrDefaultAsync(e => e.Slug == tag);
       return entity;
     }
-    private void SetTagModifiedTime(Post post, Tag tag)
-    {
-      if (tag.LastModifiedTime > post.LastModifiedTime)
-        return;
-      tag.LastModifiedTime = post.LastModifiedTime;
-    }
     public async Task AddTag(Post post, string tag, string actor)
     {
       var existed = await _db.PostTags.AnyAsync(u => u.PostId == post.Id && u.TagId == tag);
@@ -167,38 +163,45 @@ namespace ThanhTuan.Blogs.Repositories
       await _db.SaveChangesAsync();
     }
 
-    public async Task<List<Post>> SearchPosts(List<string> tagIds, List<string> keywords, GetListParams<Post> param)
+    public async Task<List<Post>> SearchPosts(List<string> tagIds, List<string> keywords, int offset, int limit)
     {
-      keywords = keywords.Select(w => Helper.NormalizeString(w)).ToList();
-      var result = await _db.WordFrequencies.
-      Where(w => keywords.Contains(w.Word)).
-      GroupBy(u => u.PostId).
-      Select(u => new
+      keywords = keywords?.Select(w => Helper.NormalizeString(w)).ToList();
+      var query = _db.PostTags.
+        Where(u =>
+          tagIds == null || tagIds.Count == 0 ||
+          tagIds.Contains(u.TagId)).
+        GroupBy(u => u.PostId).
+        Select(group => new
+        {
+          PostId = group.Key,
+          Rank = group.LongCount()
+        });
+      if (keywords != null && keywords.Count > 0)
       {
-        PostId = u.Key,
-        Frequency = u.Sum(w => w.Frequency),
-        MatchedWordCount = u.Count()
-      }).
-      Join(_db.Posts.
-      Include(u => u.PostTags).
-      Where(u =>
-        tagIds == null || tagIds.Count == 0 ||
-        u.PostTags.
-        Any(u => tagIds.Contains(u.TagId))),
+        var wordFrequencyQuery = _db.WordFrequencies.
+        Where(w => keywords.Contains(w.Word)).
+        GroupBy(u => u.PostId).
+        Select(u => new
+        {
+          PostId = u.Key,
+          Frequency = u.Sum(w => w.Frequency),
+          MatchedWordCount = u.Count()
+        });
+        query = query.Join(
+          wordFrequencyQuery,
+          i => i.PostId,
           o => o.PostId,
-          i => i.Id,
           (o, i) => new
           {
-            Post = i,
-            o.MatchedWordCount,
-            o.Frequency
-          }).
-      OrderByDescending(u => u.MatchedWordCount).
-      ThenByDescending(u => u.Frequency).
-      Skip(param.Offset).Take(param.Limit).
+            o.PostId,
+            Rank = o.Rank * 10000 + i.MatchedWordCount * 100 + i.Frequency / i.MatchedWordCount,
+          });
+      }
+      var posts = await query.
+      OrderByDescending(u => u.Rank).
+      Skip(offset).Take(limit).
+      Join(_repo.GetQuery<Post>(), o => o.PostId, i => i.Id, (o, i) => i).
       ToListAsync();
-
-      var posts = result.Select(u => u.Post).ToList();
       return posts;
     }
 

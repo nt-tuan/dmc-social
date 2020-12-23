@@ -32,6 +32,11 @@ namespace ThanhTuan.Blogs.API.Models
       }
     }
   }
+  public class GetTagsQuery : PagingQuery
+  {
+    [FromQuery]
+    public string Search { get; set; }
+  }
   public class GetRelatedTagQuery
   {
     [FromQuery]

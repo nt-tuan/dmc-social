@@ -25,9 +25,11 @@ namespace ThanhTuan.Blogs.Repositories
       return tag;
     }
 
-    public async Task<List<Tag>> GetTags(int limit, int offset)
+    public async Task<List<Tag>> GetTags(string search, int limit, int offset)
     {
-      var tags = await _repo.GetQuery<Tag>().OrderByDescending(u => u.Popularity).Skip(offset).Take(limit).ToListAsync();
+      string normalizedSearchValue = null;
+      if (!string.IsNullOrEmpty(search)) Helper.NormalizeTag(search);
+      var tags = await _repo.GetQuery<Tag>().Where(tag => string.IsNullOrEmpty(normalizedSearchValue) || tag.Value.Contains(normalizedSearchValue)).OrderByDescending(u => u.Popularity).Skip(offset).Take(limit).ToListAsync();
       return tags;
     }
     public async Task<List<Tag>> BatchGetTags(List<string> tags)

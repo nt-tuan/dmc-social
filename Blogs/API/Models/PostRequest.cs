@@ -72,18 +72,49 @@ namespace ThanhTuan.Blogs.API.Models
       return post;
     }
   }
-  public class GetPostQuery : PagingQuery
+
+  public class PostFilterQuery
   {
     [FromQuery]
-    public string By { get; set; }
-    [FromQuery]
-    public int? Dir { get; set; }
-    [FromQuery]
     public string[] Tags { get; set; }
+    [FromQuery]
+    public string TagFilterType { get; set; }
     [FromQuery]
     public string[] FilterBy { get; set; }
     [FromQuery]
     public string[] FilterValue { get; set; }
+    public PostCountParameter ToParameter()
+    {
+      var parameter = new PostCountParameter
+      {
+        Filter = new PostFilter(FilterBy?.ToList(), FilterValue?.ToList()),
+        Tags = Tags.ToList(),
+      };
+      return parameter;
+    }
+  }
+  public class GetPostQuery : PagingQuery
+  {
+    [FromQuery]
+    public string[] Tags { get; set; }
+    [FromQuery]
+    public string TagFilterType { get; set; }
+    [FromQuery]
+    public string[] FilterBy { get; set; }
+    [FromQuery]
+    public string[] FilterValue { get; set; }
+    public PostListParameter ToParameter()
+    {
+      var parameter = new PostListParameter
+      {
+        Offset = Offset,
+        Limit = Limit,
+        Tags = Tags.ToList(),
+        Filter = new PostFilter(FilterBy?.ToList(), FilterValue?.ToList())
+      };
+      parameter.SetOrder(By, Dir);
+      return parameter;
+    }
   }
 
   public class SearchPostQuery : GetPostQuery

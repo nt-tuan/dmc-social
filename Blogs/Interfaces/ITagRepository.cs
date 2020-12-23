@@ -6,7 +6,7 @@ namespace ThanhTuan.Blogs.Interfaces
 {
   public interface ITagRepository
   {
-    Task<List<Tag>> GetTags(int limit, int offset);
+    Task<List<Tag>> GetTags(string search, int limit, int offset);
     Task<List<Tag>> BatchGetTags(List<string> tags);
     Task<Tag> AddTag(Tag tag, string actor);
 

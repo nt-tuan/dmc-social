@@ -25,9 +25,9 @@ namespace ThanhTuan.Blogs.API
 
     [HttpGet]
     [Route("")]
-    public async Task<ActionResult<List<Tag>>> Get([FromQuery] PagingQuery query)
+    public async Task<ActionResult<List<Tag>>> Get([FromQuery] GetTagsQuery query)
     {
-      var entities = await _repo.GetTags(query.Limit, query.Offset);
+      var entities = await _repo.GetTags(query.Search, query.Limit, query.Offset);
       return Ok(entities.Select(u => new TagPayload(u)).ToList());
     }
 
