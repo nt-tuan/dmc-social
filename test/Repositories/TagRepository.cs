@@ -1,9 +1,9 @@
 using System.Reflection;
 using System;
 using Xunit;
-using DmcSocial.Models;
+using ThanhTuan.Blogs.Entities;
 
-namespace test.Repositories
+namespace Test.Repositories
 {
   public class TagRepository
   {

@@ -3,7 +3,7 @@ version: "3.4"
 
 services:
   blogs:
-    image: dmc-social
+    image: blogs
     build:
       context: .
       dockerfile: Dockerfile
@@ -18,6 +18,17 @@ services:
       ConnectionStrings__DefaultConnection: "Host=db;Database=dmcsocial;Username=dmcsocial;Password=hala29an3"
     volumes:
       - ./Data:/data
+  ranking-worker:
+    image: ranking-worker
+    build:
+      context: .
+      dockerfile: worker.Dockerfile
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "Host=db;Database=dmcsocial;Username=dmcsocial;Password=hala29an3"
+      RANKING_INTERVAL: 01:00:00
+
   db:
     image: postgres:12-alpine
     ports:

@@ -1,0 +1,12 @@
+﻿{
+  "profiles": {
+    "RankingWorker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "DATABASE_URL": "Host=localhost;Database=dmcsocial;Username=dmcsocial;Password=hala29an3",
+        "RANKING_INTERVAL": "01:00:00"
+      }
+    }
+  }
+}

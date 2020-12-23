@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\dmc-social\dmc-social.csproj" />
+    <ProjectReference Include="..\Blogs\Blogs.csproj" />
   </ItemGroup>
 
 </Project>
