@@ -41,7 +41,6 @@ namespace ThanhTuan.Blogs.RankingWorker
       }
       return dict;
     }
-
     public static List<WordFrequency> GetWordFrequencies(Post post)
     {
       var dict = ExtractWordFrequency(post.Content);

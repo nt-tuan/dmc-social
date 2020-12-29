@@ -88,7 +88,7 @@ namespace ThanhTuan.Blogs.API.Models
       var parameter = new PostCountParameter
       {
         Filter = new PostFilter(FilterBy?.ToList(), FilterValue?.ToList()),
-        Tags = Tags.ToList(),
+        Tags = Tags?.ToList(),
       };
       return parameter;
     }
@@ -109,7 +109,7 @@ namespace ThanhTuan.Blogs.API.Models
       {
         Offset = Offset,
         Limit = Limit,
-        Tags = Tags.ToList(),
+        Tags = Tags?.ToList(),
         Filter = new PostFilter(FilterBy?.ToList(), FilterValue?.ToList())
       };
       parameter.SetOrder(By, Dir);

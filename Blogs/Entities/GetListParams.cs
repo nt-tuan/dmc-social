@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.Json.Serialization;
-using ThanhTuan.Blogs.API.Models;
 namespace ThanhTuan.Blogs.Entities
 {
   public class Filterable<T>
@@ -51,34 +48,28 @@ namespace ThanhTuan.Blogs.Entities
   {
     public List<string> Tags { get; set; }
     public PostListParameter() { }
+    public Expression<Func<Post, object>> ParseOrderBy(string orderBy)
+    {
+      return orderBy switch
+      {
+        nameof(Post.Title) => post => post.Title,
+        nameof(Post.CreatedBy) => post => post.CreatedBy,
+        nameof(Post.DateCreated) => post => post.DateCreated,
+        nameof(Post.ViewCount) => post => post.ViewCount,
+        nameof(Post.CommentCount) => post => post.CommentCount,
+        _ => post => post.Popularity
+      };
+    }
     public void SetOrder(string orderBy, int? orderDir)
     {
-      this.OrderBy = post => post.Popularity;
-      this.OrderDirection = OrderDirections.DESC;
+      OrderDirection = OrderDirections.DESC;
       if (orderDir != null)
       {
-        this.OrderDirection = (OrderDirections)orderDir;
+        OrderDirection = (OrderDirections)orderDir;
       }
-      if (orderBy == nameof(Post.Title))
-      {
-        this.OrderBy = post => post.Title;
-      }
-      else if (orderBy == nameof(Post.CreatedBy))
-      {
-        this.OrderBy = post => post.CreatedBy;
-      }
-      else if (orderBy == nameof(Post.ViewCount))
-      {
-        this.OrderBy = post => post.ViewCount;
-      }
-      else if (orderBy == nameof(Post.CommentCount))
-      {
-        this.OrderBy = post => post.CommentCount;
-      }
+      OrderBy = ParseOrderBy(orderBy);
     }
-
   }
-
   public class CommentListParameter : ListParameter<PostComment>
   {
   }

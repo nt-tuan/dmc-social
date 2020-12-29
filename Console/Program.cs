@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Design;
+using Console.Jobs;
 using ThanhTuan.Blogs.RankingWorker.Jobs;
 namespace Console
 {
@@ -15,6 +16,9 @@ namespace Console
     {
       switch (name)
       {
+        case "fix-medium-post":
+          new FixMediumPostJob().Run();
+          return;
         case "calc-words":
           new WordFrequencyJob().Run();
           return;

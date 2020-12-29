@@ -39,3 +39,5 @@ DATABASE_URL="Host=localhost;Database=dmcsocial;Username=dmcsocial;Password=hala
 ```
 DATABASE_URL="Host=localhost;Database=dmcsocial;Username=dmcsocial;Password=hala29an3" dotnet run rank
 ```
+
+DATABASE_URL="Host=localhost;Database=dmcsocial;Username=dmcsocial;Password=hala29an3" dotnet run fix-medium-post

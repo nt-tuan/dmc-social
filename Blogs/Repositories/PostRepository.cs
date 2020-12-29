@@ -18,6 +18,11 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace ThanhTuan.Blogs.Repositories
 {
+  public class SearchQuery
+  {
+    public int PostId { get; set; }
+    public decimal Rank { get; set; }
+  }
   public class PostRepository : IPostRepository
   {
     private readonly AppDbContext _db;
@@ -163,19 +168,26 @@ namespace ThanhTuan.Blogs.Repositories
       await _db.SaveChangesAsync();
     }
 
-    public async Task<List<Post>> SearchPosts(List<string> tagIds, List<string> keywords, int offset, int limit)
+    public IQueryable<SearchQuery> GetSearchQuery(List<string> slugs, List<string> keywords)
     {
       keywords = keywords?.Select(w => Helper.NormalizeString(w)).ToList();
-      var query = _db.PostTags.
-        Where(u =>
-          tagIds == null || tagIds.Count == 0 ||
-          tagIds.Contains(u.TagId)).
-        GroupBy(u => u.PostId).
-        Select(group => new
-        {
-          PostId = group.Key,
-          Rank = group.LongCount()
-        });
+      var query = _db.Posts.Select(u => new SearchQuery
+      {
+        PostId = u.Id,
+        Rank = 0
+      });
+      if (slugs != null && slugs.Count > 0)
+      {
+        query = _db.PostTags.
+          Where(u =>
+            slugs.Contains(u.TagId)).
+          GroupBy(u => u.PostId).
+          Select(group => new SearchQuery
+          {
+            PostId = group.Key,
+            Rank = group.LongCount()
+          });
+      }
       if (keywords != null && keywords.Count > 0)
       {
         var wordFrequencyQuery = _db.WordFrequencies.
@@ -191,35 +203,29 @@ namespace ThanhTuan.Blogs.Repositories
           wordFrequencyQuery,
           i => i.PostId,
           o => o.PostId,
-          (o, i) => new
+          (o, i) => new SearchQuery
           {
-            o.PostId,
-            Rank = o.Rank * 10000 + i.MatchedWordCount * 100 + i.Frequency / i.MatchedWordCount,
+            PostId = o.PostId,
+            Rank = o.Rank * 10000 + i.MatchedWordCount * 100 + i.Frequency / keywords.Count,
           });
       }
+      return query;
+    }
+    public async Task<List<Post>> SearchPosts(List<string> slugs, List<string> keywords, int offset, int limit)
+    {
+      var query = GetSearchQuery(slugs, keywords);
       var posts = await query.
       OrderByDescending(u => u.Rank).
       Skip(offset).Take(limit).
-      Join(_repo.GetQuery<Post>(), o => o.PostId, i => i.Id, (o, i) => i).
+      Join(_db.Posts, o => o.PostId, i => i.Id, (o, i) => i).
       ToListAsync();
       return posts;
     }
 
-    public async Task<int> CountSearchedPosts(List<string> tagIds, List<string> keywords)
+    public async Task<int> CountSearchedPosts(List<string> slugs, List<string> keywords)
     {
-      keywords = keywords.Select(w => Helper.NormalizeString(w)).ToList();
-      var count = await _db.WordFrequencies.
-      Where(w => keywords.Contains(w.Word)).
-      GroupBy(u => u.PostId).
-      Select(u => new { PostId = u.Key }).
-      Join(_db.Posts.
-        Where(u =>
-          tagIds.Count == 0 ||
-          u.PostTags.Any(u => tagIds.Contains(u.TagId))),
-          o => o.PostId,
-          i => i.Id,
-          (o, i) => new { Post = i }).
-      CountAsync();
+      var query = GetSearchQuery(slugs, keywords);
+      var count = await query.CountAsync();
       return count;
     }
 

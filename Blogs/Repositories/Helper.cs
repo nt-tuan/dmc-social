@@ -37,8 +37,8 @@ namespace ThanhTuan.Blogs.Repositories
     }
     public static IQueryable<T> ApplyListParam<T>(IQueryable<T> query, ListParameter<T> parameter)
     {
-      query = ApplyPaging(query, parameter);
       query = ApplyFilters(query, parameter.Filter);
+      query = ApplyPaging(query, parameter);
       return query;
     }
     public static string NormalizeString(string str)

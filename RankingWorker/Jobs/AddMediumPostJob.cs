@@ -113,10 +113,10 @@ namespace ThanhTuan.Blogs.RankingWorker.Jobs
         return;
       }
       var repo = new PostRepository(db);
-      var lines = record.text.Split("\n", 4);
-      var subtitle = $"Reference: {record.url}\n{record.subTitle}";
-      var text = $"Reference: ${record.url}\n${record.text}";
-      var post = repo.CreatePost(new ThanhTuan.Blogs.Entities.Post
+      var lines = record.text.Split(Environment.NewLine, 4);
+      var subtitle = $"Reference: {record.url}{Environment.NewLine}{record.subTitle}";
+      var text = $"Reference: {record.url}{Environment.NewLine}{record.text}";
+      var post = repo.CreatePost(new Post
       {
         Title = record.title,
         Content = record.text,
