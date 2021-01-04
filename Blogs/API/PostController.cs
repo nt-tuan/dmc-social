@@ -10,6 +10,8 @@ using ThanhTuan.Blogs.Entities;
 using ThanhTuan.Blogs.API.Models;
 using ThanhTuan.Blogs.Repositories;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace ThanhTuan.Blogs.API
 {
@@ -19,8 +21,10 @@ namespace ThanhTuan.Blogs.API
   {
     private readonly IPostRepository _repo;
     private readonly Authenticate _auth;
-    public PostController(IPostRepository repo, Authenticate auth)
+    private readonly ILogger<PostController> _logger;
+    public PostController(IPostRepository repo, Authenticate auth, ILogger<PostController> logger)
     {
+      _logger = logger;
       _repo = repo;
       _auth = auth;
     }

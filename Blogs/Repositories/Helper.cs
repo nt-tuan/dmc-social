@@ -11,18 +11,18 @@ namespace ThanhTuan.Blogs.Repositories
     static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, ListParameter<T> pagingParam)
     {
       var chain = query;
-      if (pagingParam.OrderBy != null)
+      if (pagingParam.Paging.OrderBy != null)
       {
-        if (pagingParam.OrderDirection == ListParameter<T>.OrderDirections.ASC)
+        if (pagingParam.Paging.OrderDirection == PagingParameter<T>.OrderDirections.ASC)
         {
-          chain = chain.OrderBy(pagingParam.OrderBy);
+          chain = chain.OrderBy(pagingParam.Paging.OrderBy);
         }
         else
         {
-          chain = chain.OrderByDescending(pagingParam.OrderBy);
+          chain = chain.OrderByDescending(pagingParam.Paging.OrderBy);
         }
       }
-      chain = chain.Skip(pagingParam.Offset).Take(pagingParam.Limit);
+      chain = chain.Skip(pagingParam.Paging.Offset).Take(pagingParam.Paging.Limit);
       return chain;
     }
 

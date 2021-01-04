@@ -36,6 +36,7 @@ namespace ThanhTuan.Blogs
       {
         options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
         options.UseLoggerFactory(factory);
+        options.EnableSensitiveDataLogging(true);
       });
       services.AddControllers();
       services.AddScoped<IPostRepository, PostRepository>();

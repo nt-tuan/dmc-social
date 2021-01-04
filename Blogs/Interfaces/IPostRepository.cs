@@ -20,5 +20,6 @@ namespace ThanhTuan.Blogs.Interfaces
     Task AddTag(Post entity, string tag, string actor);
     Task RemoveTag(Post entity, string tag, string actor);
     Task<int> IncreaseView(int postId);
+    Task<List<GroupByAuthor>> GetPostsGroupByAuthor(PagingParameter<GroupByAuthor> paging);
   }
 }

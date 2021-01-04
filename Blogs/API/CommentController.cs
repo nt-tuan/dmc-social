@@ -29,8 +29,11 @@ namespace ThanhTuan.Blogs.API
     {
       var parameter = new CommentListParameter
       {
-        Offset = offset,
-        Limit = limit
+        Paging = new PagingParameter<PostComment>
+        {
+          Offset = offset,
+          Limit = limit
+        }
       };
       var comments = await _repo.GetPostComments(postId, parameter);
       return comments.Select(u => new CommentResponse(u)).ToList();
@@ -50,8 +53,11 @@ namespace ThanhTuan.Blogs.API
     {
       var parameter = new CommentListParameter
       {
-        Offset = offset,
-        Limit = limit
+        Paging = new PagingParameter<PostComment>
+        {
+          Offset = offset,
+          Limit = limit
+        }
       };
       var comments = await _repo.GetSubPostComments(commentId, parameter);
       return comments.Select(u => new CommentResponse(u)).ToList();

@@ -10,33 +10,28 @@ namespace ThanhTuan.Blogs.Entities
   }
   public class PostFilter : Filterable<Post>
   {
-    public PostFilter(List<string> filterBy, List<string> filterValue)
+    public PostFilter()
     {
       FilterQueries = new List<Expression<Func<Post, bool>>>();
-      if (filterBy == null || filterValue == null) return;
-      var numFilter = new int[] { filterBy.Count, filterValue.Count }.Min();
-      for (var index = 0; index < numFilter; index++)
-      {
-        if (filterBy[index] == nameof(Post.CreatedBy))
-        {
-          FilterQueries.Add(post => post.CreatedBy.ToLower().Contains(filterValue[index].ToLower()));
-          continue;
-        }
-      }
     }
   }
   public class CountParameter<T> : Filterable<T>
   {
     public PostFilter Filter { get; set; }
   }
-  public class ListParameter<T>
+  public class PagingParameter<T>
   {
-    public Filterable<T> Filter { get; set; }
     public enum OrderDirections { ASC = 0, DESC = 1 }
     public int Offset { get; set; } = 0;
     public int Limit { get; set; } = 30;
     public Expression<Func<T, object>> OrderBy { get; set; } = null;
     public OrderDirections OrderDirection { get; set; } = OrderDirections.ASC;
+  }
+  public class ListParameter<T>
+  {
+    public Filterable<T> Filter { get; set; }
+    public enum OrderDirections { ASC = 0, DESC = 1 }
+    public PagingParameter<T> Paging { get; set; }
   }
 
   public class PostCountParameter
@@ -62,12 +57,12 @@ namespace ThanhTuan.Blogs.Entities
     }
     public void SetOrder(string orderBy, int? orderDir)
     {
-      OrderDirection = OrderDirections.DESC;
+      Paging.OrderDirection = PagingParameter<Post>.OrderDirections.DESC;
       if (orderDir != null)
       {
-        OrderDirection = (OrderDirections)orderDir;
+        Paging.OrderDirection = (PagingParameter<Post>.OrderDirections)orderDir;
       }
-      OrderBy = ParseOrderBy(orderBy);
+      Paging.OrderBy = ParseOrderBy(orderBy);
     }
   }
   public class CommentListParameter : ListParameter<PostComment>

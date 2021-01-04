@@ -78,18 +78,18 @@ namespace ThanhTuan.Blogs.API.Models
     [FromQuery]
     public string[] Tags { get; set; }
     [FromQuery]
-    public string TagFilterType { get; set; }
-    [FromQuery]
-    public string[] FilterBy { get; set; }
-    [FromQuery]
-    public string[] FilterValue { get; set; }
+    public string CreatedBy { get; set; }
     public PostCountParameter ToParameter()
     {
       var parameter = new PostCountParameter
       {
-        Filter = new PostFilter(FilterBy?.ToList(), FilterValue?.ToList()),
+        Filter = new PostFilter(),
         Tags = Tags?.ToList(),
       };
+      if (!string.IsNullOrEmpty(CreatedBy))
+      {
+        parameter.Filter.FilterQueries.Add(post => post.CreatedBy == CreatedBy);
+      }
       return parameter;
     }
   }
@@ -100,18 +100,23 @@ namespace ThanhTuan.Blogs.API.Models
     [FromQuery]
     public string TagFilterType { get; set; }
     [FromQuery]
-    public string[] FilterBy { get; set; }
-    [FromQuery]
-    public string[] FilterValue { get; set; }
+    public string CreatedBy { get; set; }
     public PostListParameter ToParameter()
     {
       var parameter = new PostListParameter
       {
-        Offset = Offset,
-        Limit = Limit,
+        Paging = new PagingParameter<Post>
+        {
+          Offset = Offset,
+          Limit = Limit,
+        },
         Tags = Tags?.ToList(),
-        Filter = new PostFilter(FilterBy?.ToList(), FilterValue?.ToList())
+        Filter = new PostFilter()
       };
+      if (!string.IsNullOrEmpty(CreatedBy))
+      {
+        parameter.Filter.FilterQueries.Add(post => post.CreatedBy == CreatedBy);
+      }
       parameter.SetOrder(By, Dir);
       return parameter;
     }

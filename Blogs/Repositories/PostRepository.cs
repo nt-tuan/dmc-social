@@ -253,5 +253,13 @@ namespace ThanhTuan.Blogs.Repositories
       return entity;
     }
 
+    public async Task<List<GroupByAuthor>> GetPostsGroupByAuthor(PagingParameter<GroupByAuthor> paging)
+    {
+      return await GetPostQuery().GroupBy(u => u.CreatedBy).Select(group => new GroupByAuthor
+      {
+        Author = group.Key,
+        TotalPost = group.Count(),
+      }).ToListAsync();
+    }
   }
 }
