@@ -140,7 +140,7 @@ namespace ThanhTuan.Blogs.Repositories
     }
     public async Task AddTag(Post post, string tag, string actor)
     {
-      var existed = await _db.PostTags.AnyAsync(u => u.PostId == post.Id && u.TagId == tag);
+      var existed = await _repo.GetQuery<PostTag>().AnyAsync(u => u.PostId == post.Id && u.TagId == tag);
       if (existed) return;
       var tagEntity = await GetTag(tag);
       if (tagEntity == null)
@@ -255,11 +255,13 @@ namespace ThanhTuan.Blogs.Repositories
 
     public async Task<List<GroupByAuthor>> GetPostsGroupByAuthor(PagingParameter<GroupByAuthor> paging)
     {
-      return await GetPostQuery().GroupBy(u => u.CreatedBy).Select(group => new GroupByAuthor
+      var query = GetPostQuery().GroupBy(u => u.CreatedBy).Select(group => new GroupByAuthor
       {
         Author = group.Key,
         TotalPost = group.Count(),
-      }).ToListAsync();
+      });
+      query = Helper.ApplyPaging(query, paging);
+      return await query.ToListAsync();
     }
   }
 }

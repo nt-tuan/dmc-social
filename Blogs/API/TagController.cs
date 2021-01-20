@@ -24,12 +24,18 @@ namespace ThanhTuan.Blogs.API
     }
 
     [HttpGet]
-    [Route("")]
     public async Task<ActionResult<List<Tag>>> Get([FromQuery] GetTagsQuery query)
     {
       var entities = await _repo.GetTags(query.Search, query.Limit, query.Offset);
       return Ok(entities.Select(u => new TagPayload(u)).ToList());
     }
+
+    [HttpGet("count")]
+    public async Task<ActionResult<int>> Count()
+    {
+      return await _repo.CountTags();
+    }
+
 
     [HttpGet("batch")]
     public async Task<ActionResult<List<TagPayload>>> BatchGet([FromQuery] GetBatchTags query)
@@ -38,19 +44,32 @@ namespace ThanhTuan.Blogs.API
     }
 
     [HttpPost]
-    [Route("")]
-    public async Task<ActionResult<Tag>> Put(string tag)
+    public async Task<ActionResult<TagPayload>> Put(string tag)
     {
       var user = _auth.GetUser();
       var e = new Tag(tag, user);
       await _repo.AddTag(e, _auth.GetUser());
-      return Ok(e);
+      return Ok(new TagPayload(e));
     }
 
     [HttpGet("related")]
     public async Task<ActionResult<List<string>>> GetRelatedTag([FromQuery] GetRelatedTagQuery query)
     {
       return await _repo.GetRelatedTags(query.Tag, query.Limit, query.Offset);
+    }
+
+    [HttpPut]
+    public async Task<ActionResult<TagPayload>> UpdateTagValue(UpdateTagPayload payload)
+    {
+      var entity = await _repo.UpdateTag(payload.Slug, payload.Label, _auth.GetUser());
+      return new TagPayload(entity);
+    }
+
+    [HttpDelete("{tag}")]
+    public async Task<ActionResult> DeleteTag(string tag)
+    {
+      await _repo.DeleteTag(tag, _auth.GetUser());
+      return Ok();
     }
   }
 }

@@ -1,7 +1,4 @@
-using System.Net.Cache;
 using System.Linq;
-using System;
-using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ThanhTuan.Blogs.Interfaces;
@@ -9,9 +6,7 @@ using System.Collections.Generic;
 using ThanhTuan.Blogs.Entities;
 using ThanhTuan.Blogs.API.Models;
 using ThanhTuan.Blogs.Repositories;
-using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace ThanhTuan.Blogs.API
 {
@@ -29,12 +24,6 @@ namespace ThanhTuan.Blogs.API
       _auth = auth;
     }
 
-    /// <summary>
-    /// Get posts
-    /// </summary>
-    /// <param name="offset"></param>
-    /// <param name="limit"></param>
-    /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<List<PostResponse>>> GetPosts([FromQuery] GetPostQuery query)
     {
@@ -52,6 +41,21 @@ namespace ThanhTuan.Blogs.API
     }
 
     [HttpGet]
+    [Route("count/byAuthor")]
+    public async Task<ActionResult<List<GroupByAuthor>>> GetTopBloggers([FromQuery] PagingQuery query)
+    {
+      var parameter = new PagingParameter<GroupByAuthor>
+      {
+        Offset = query.Offset,
+        Limit = query.Limit,
+        OrderDirection = (PagingParameter<GroupByAuthor>.OrderDirections)(query.Dir ?? 1),
+        OrderBy = group => group.TotalPost
+      };
+      var groups = await _repo.GetPostsGroupByAuthor(parameter);
+      return groups;
+    }
+
+    [HttpGet]
     [Route("metric/{id}")]
     public async Task<ActionResult<PostMetric>> GetMetricById(int id)
     {
@@ -60,13 +64,6 @@ namespace ThanhTuan.Blogs.API
       return metric;
     }
 
-
-    /// <summary>
-    /// Search posts
-    /// </summary>
-    /// <param name="pageIndex"></param>
-    /// <param name="pageRows"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route("search")]
     public async Task<ActionResult<List<PostResponse>>> SearchPosts([FromQuery] SearchPostQuery query)
@@ -75,12 +72,6 @@ namespace ThanhTuan.Blogs.API
       return Ok(posts.Select(u => new PostResponse(u)).ToList());
     }
 
-    /// <summary>
-    /// Count search result posts
-    /// </summary>
-    /// <param name="pageIndex"></param>
-    /// <param name="pageRows"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route("search/count")]
     public async Task<ActionResult<int>> CountSearchPosts([FromQuery] string[] tags, [FromQuery] string[] keywords)
@@ -89,40 +80,15 @@ namespace ThanhTuan.Blogs.API
       return Ok(count);
     }
 
-
-    /// <summary>
-    /// Get a post
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<PostResponse>> GetPost(int id)
     {
       var post = await _repo.GetPostById(id);
       if (post == null)
       {
-        return NotFound("not-found");
+        return NotFound();
       }
-      return Ok(new PostResponse(post));
-    }
-
-    [HttpGet("me")]
-    public async Task<ActionResult<List<PostResponse>>> GetMyPost([FromQuery] GetPostQuery query)
-    {
-      var user = _auth.GetUser();
-      if (string.IsNullOrEmpty(user)) return Unauthorized();
-      var getParams = query.ToParameter();
-      getParams.Filter.FilterQueries.Add(post => post.CreatedBy == user);
-      var posts = await _repo.GetPosts(getParams);
-      return posts.Select(post => new PostResponse(post)).ToList();
-    }
-
-    [HttpPost("me/count")]
-    public async Task<ActionResult<int>> GetMyPostCount([FromQuery] PostFilterQuery query)
-    {
-      var parameter = query.ToParameter();
-      parameter.Filter.FilterQueries.Add(post => post.CreatedBy == _auth.GetUser());
-      return await _repo.CountPosts(parameter);
+      return new PostResponse(post); ;
     }
 
     [HttpGet("{id}/increaseView")]
@@ -139,12 +105,6 @@ namespace ThanhTuan.Blogs.API
       }
     }
 
-    /// <summary>
-    /// Update a post
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="req"></param>
-    /// <returns></returns>
     [HttpPut("{id}")]
     public async Task<ActionResult<PostResponse>> UpdatePostContent(int id, UpdatePostContent req)
     {
@@ -152,12 +112,6 @@ namespace ThanhTuan.Blogs.API
       return Ok(new PostResponse(post));
     }
 
-    /// <summary>
-    /// Update a post config
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="req"></param>
-    /// <returns></returns>
     [HttpPut("{id}/config")]
     public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostConfig req)
     {
@@ -165,11 +119,6 @@ namespace ThanhTuan.Blogs.API
       return Ok(new PostResponse(post));
     }
 
-    /// <summary>
-    /// Delete a post
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeletePost(int id)
     {
@@ -177,12 +126,6 @@ namespace ThanhTuan.Blogs.API
       return Ok();
     }
 
-    /// <summary>
-    /// Add `tag` to a post which Id is postId
-    /// </summary>
-    /// <param name="postId"></param>
-    /// <param name="tag"></param>
-    /// <returns></returns>
     [HttpPost]
     [Route("{postId}/tag")]
     public async Task<ActionResult> AddTag(int postId, string tag)
@@ -194,12 +137,6 @@ namespace ThanhTuan.Blogs.API
       return Ok();
     }
 
-    /// <summary>
-    /// Delete tag specified by postId and tag
-    /// </summary>
-    /// <param name="postId"></param>
-    /// <param name="tag"></param>
-    /// <returns></returns>
     [HttpDelete]
     [Route("{postId}/tag")]
     public async Task<ActionResult> DeleteTag(int postId, string tag)

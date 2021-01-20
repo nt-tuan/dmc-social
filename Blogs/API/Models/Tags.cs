@@ -47,4 +47,9 @@ namespace ThanhTuan.Blogs.API.Models
     [Range(0, 100)]
     public int Limit { get; set; }
   }
+  public class UpdateTagPayload
+  {
+    public string Slug { get; set; }
+    public string Label { get; set; }
+  }
 }

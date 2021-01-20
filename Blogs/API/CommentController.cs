@@ -71,12 +71,6 @@ namespace ThanhTuan.Blogs.API
       return count;
     }
 
-    [HttpPost]
-    public async Task<ActionResult<CommentResponse>> CreateComment(CreateComment req)
-    {
-      var entity = await _repo.CreatePostComment(req.PostId, req.CommentId, req.Content, _auth.GetUser());
-      return new CommentResponse(entity);
-    }
 
     [HttpPut("{id}")]
     public async Task<ActionResult<CommentResponse>> UpdateComment(int id, UpdateComment payload)

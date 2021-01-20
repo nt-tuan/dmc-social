@@ -8,21 +8,21 @@ namespace ThanhTuan.Blogs.Repositories
 {
   public static class Helper
   {
-    static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, ListParameter<T> pagingParam)
+    public static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, PagingParameter<T> pagingParam)
     {
       var chain = query;
-      if (pagingParam.Paging.OrderBy != null)
+      if (pagingParam.OrderBy != null)
       {
-        if (pagingParam.Paging.OrderDirection == PagingParameter<T>.OrderDirections.ASC)
+        if (pagingParam.OrderDirection == PagingParameter<T>.OrderDirections.ASC)
         {
-          chain = chain.OrderBy(pagingParam.Paging.OrderBy);
+          chain = chain.OrderBy(pagingParam.OrderBy);
         }
         else
         {
-          chain = chain.OrderByDescending(pagingParam.Paging.OrderBy);
+          chain = chain.OrderByDescending(pagingParam.OrderBy);
         }
       }
-      chain = chain.Skip(pagingParam.Paging.Offset).Take(pagingParam.Paging.Limit);
+      chain = chain.Skip(pagingParam.Offset).Take(pagingParam.Limit);
       return chain;
     }
 
@@ -38,7 +38,7 @@ namespace ThanhTuan.Blogs.Repositories
     public static IQueryable<T> ApplyListParam<T>(IQueryable<T> query, ListParameter<T> parameter)
     {
       query = ApplyFilters(query, parameter.Filter);
-      query = ApplyPaging(query, parameter);
+      query = ApplyPaging(query, parameter.Paging);
       return query;
     }
     public static string NormalizeString(string str)

@@ -43,11 +43,6 @@ namespace ThanhTuan.Blogs.API
     }
 
     #region User Post API
-    /// <summary>
-    /// Create a post
-    /// </summary>
-    /// <param name="req"></param>
-    /// <returns></returns> 
     [HttpPost("post")]
     public async Task<ActionResult<PostResponse>> CreatePost(CreatePost req)
     {
@@ -61,13 +56,6 @@ namespace ThanhTuan.Blogs.API
       return Ok(new PostResponse(post));
     }
 
-
-    /// <summary>
-    /// Update a post
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="req"></param>
-    /// <returns></returns>
     [HttpPut("post/{id}")]
     public async Task<ActionResult<PostResponse>> UpdatePostContent(int id, UpdatePostContent req)
     {
@@ -77,12 +65,6 @@ namespace ThanhTuan.Blogs.API
       return Ok(new PostResponse(post));
     }
 
-    /// <summary>
-    /// Update a post config
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="req"></param>
-    /// <returns></returns>
     [HttpPut("post/{id}/config")]
     public async Task<ActionResult<PostResponse>> UpdatePostConfig(int id, UpdatePostConfig req)
     {
@@ -92,11 +74,6 @@ namespace ThanhTuan.Blogs.API
       return Ok(new PostResponse(post));
     }
 
-    /// <summary>
-    /// Delete a post
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
     [HttpDelete("post/{id}")]
     public async Task<ActionResult> DeletePost(int id)
     {
@@ -109,12 +86,6 @@ namespace ThanhTuan.Blogs.API
       return Ok();
     }
 
-    /// <summary>
-    /// Add `tag` to a post which Id is postId
-    /// </summary>
-    /// <param name="postId"></param>
-    /// <param name="tag"></param>
-    /// <returns></returns>
     [HttpPost]
     [Route("post/{postId}/tag")]
     public async Task<ActionResult> AddTag(int postId, string tag)
@@ -128,12 +99,6 @@ namespace ThanhTuan.Blogs.API
       return Ok();
     }
 
-    /// <summary>
-    /// Delete tag specified by postId and tag
-    /// </summary>
-    /// <param name="postId"></param>
-    /// <param name="tag"></param>
-    /// <returns></returns>
     [HttpDelete]
     [Route("post/{postId}/tag")]
     public async Task<ActionResult> DeleteTag(int postId, string tag)

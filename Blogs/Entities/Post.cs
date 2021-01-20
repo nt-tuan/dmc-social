@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ThanhTuan.Blogs.Entities
 {
+  public enum PostRestrictionType
+  {
+    NONE = 0, ALLOW_USERS = 1
+  }
   public class Post : BaseEntity
   {
     public string Title { get; set; }
