@@ -15,6 +15,7 @@ namespace ThanhTuan.Blogs.API.Models
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; }
     public DateTimeOffset? LastModifiedAt { get; set; }
+    public int CommentCount { get; set; }
     public CommentResponse(PostComment entity)
     {
       Id = entity.Id;
@@ -24,6 +25,7 @@ namespace ThanhTuan.Blogs.API.Models
       CreatedBy = entity.CreatedBy;
       CreatedAt = entity.DateCreated;
       LastModifiedAt = entity.LastModifiedTime;
+      CommentCount = entity.CommentCount;
     }
   }
 }
