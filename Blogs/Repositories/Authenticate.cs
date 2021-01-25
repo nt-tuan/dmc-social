@@ -11,7 +11,7 @@ namespace ThanhTuan.Blogs.Repositories
     }
     public string GetUser()
     {
-      var user = _contextAccessor.HttpContext.Request.Headers["X-User"];
+      var user = _contextAccessor.HttpContext.Request.Headers["X-Subject"];
       if (string.IsNullOrEmpty(user))
         return "anonymous";
       return user;
