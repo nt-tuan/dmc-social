@@ -11,7 +11,7 @@ namespace ThanhTuan.Blogs.API.Models
   public class UpdatePostContent
   {
     [MinLength(32)]
-    [MaxLength(4048)]
+    [MaxLength(20000)]
     public string Content { get; set; }
     [MinLength(8)]
     [MaxLength(255)]
@@ -34,7 +34,7 @@ namespace ThanhTuan.Blogs.API.Models
   public class CreatePost
   {
     [MinLength(32)]
-    [MaxLength(4048)]
+    [MaxLength(20000)]
     public string Content { get; set; }
     [MinLength(8)]
     [MaxLength(255)]
